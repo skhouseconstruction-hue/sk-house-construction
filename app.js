@@ -79,25 +79,14 @@ function documentForm(type,c){
 function renderItems(){
  const tbody=document.getElementById('itemRows');
  if(!tbody)return;
- tbody.innerHTML=state.editing.items.map((it,i)=>`<tr>
- <td><input inputmode="decimal" data-i="${i}" data-k="qty" value="${esc(it.qty)}"></td>
- <td><input data-i="${i}" data-k="desc" value="${esc(it.desc)}"></td>
- <td><input inputmode="decimal" data-i="${i}" data-k="price" value="${esc(it.price)}"></td>
- <td class="num" id="line_${i}">${money(num(it.qty)*num(it.price))}</td>
- <td><button class="btn danger" type="button" data-remove="${i}">×</button></td></tr>`).join('');
- tbody.querySelectorAll('input[data-i]').forEach(e=>{
-   e.addEventListener('input',()=>{
-     const i=Number(e.dataset.i),k=e.dataset.k;
-     state.editing.items[i][k]=e.value;
-     updateTotalsUI();
-   });
- });
- tbody.querySelectorAll('[data-img]').forEach(inp=>inp.addEventListener('change',async()=>{
- const i=Number(inp.dataset.img); for(const file of Array.from(inp.files||[])){const data=await resizeImage(file,1200);state.editing.items[i].images=state.editing.items[i].images||[];state.editing.items[i].images.push({data,text:''});} renderItems(); updateTotalsUI();
-}));
-tbody.querySelectorAll('[data-remove]').forEach(b=>b.addEventListener('click',()=>{
-   const i=Number(b.dataset.remove); if(state.editing.items.length>1){state.editing.items.splice(i,1);renderItems();updateTotalsUI();}
- }));
+ tbody.innerHTML=state.editing.items.map((it,i)=>{
+   const imgs=Array.isArray(it.images)?it.images:[];
+   const imageUI=imgs.map((im,j)=>`<div class="item-image"><img src="${im.data}" alt="Imagen ${j+1}"><div class="item-image-actions"><button class="btn outline mini" type="button" onclick="editImageText(${i},${j})">Texto</button><button class="btn danger mini" type="button" onclick="removeImage(${i},${j})">×</button></div>${im.text?`<div class="annotation">${esc(im.text)}</div>`:''}</div>`).join('');
+   return `<tr><td><input inputmode="decimal" data-i="${i}" data-k="qty" value="${esc(it.qty)}"></td><td><input data-i="${i}" data-k="desc" value="${esc(it.desc)}"><div class="image-tools"><label class="btn outline mini">📷 Adjuntar imagen(es)<input type="file" accept="image/*" multiple hidden data-img="${i}"></label>${imageUI}</div></td><td><input inputmode="decimal" data-i="${i}" data-k="price" value="${esc(it.price)}"></td><td class="num" id="line_${i}">${money(num(it.qty)*num(it.price))}</td><td><button class="btn danger" type="button" data-remove="${i}">×</button></td></tr>`;
+ }).join('');
+ tbody.querySelectorAll('input[data-i]').forEach(e=>e.addEventListener('input',()=>{const i=Number(e.dataset.i),k=e.dataset.k;state.editing.items[i][k]=e.value;updateTotalsUI();}));
+ tbody.querySelectorAll('[data-img]').forEach(inp=>inp.addEventListener('change',async()=>{const i=Number(inp.dataset.img);for(const file of Array.from(inp.files||[])){try{const data=await resizeImage(file,1000);state.editing.items[i].images=state.editing.items[i].images||[];state.editing.items[i].images.push({data,text:''});}catch(e){console.error(e);toast('No se pudo cargar una imagen');}}renderItems();updateTotalsUI();}));
+ tbody.querySelectorAll('[data-remove]').forEach(b=>b.addEventListener('click',()=>{const i=Number(b.dataset.remove);if(state.editing.items.length>1){state.editing.items.splice(i,1);renderItems();updateTotalsUI();}}));
 }
 
 function resizeImage(file,max){
@@ -118,7 +107,7 @@ function bindDocumentInputs(){
  document.getElementById('previewBtn').addEventListener('click',()=>previewDoc());
  document.getElementById('shareBtn').addEventListener('click',async()=>{saveDoc();await shareDoc(state.editing);});
  document.getElementById('emailBtn').addEventListener('click',async()=>{saveDoc();await shareByEmail(state.editing);});
- document.getElementById('cancelBtn').addEventListener('click',()=>{state.editing=null;if(!state.toolLists)state.toolLists=[]; if(!state.clients)state.clients=[]; if(!state.products)state.products=[]; if(!state.documents)state.documents=[]; state.view='dashboard';render(); setTimeout(async()=>{if(window.SKCloud){try{if(await window.SKCloud.session()) await syncCloudIntoState(); else updateCloudStatus();}catch(e){console.warn(e);updateCloudStatus();}}},150);});
+ const cancelBtn=document.getElementById('cancelBtn'); if(cancelBtn) cancelBtn.addEventListener('click',()=>{state.editing=null;if(!state.toolLists)state.toolLists=[]; if(!state.clients)state.clients=[]; if(!state.products)state.products=[]; if(!state.documents)state.documents=[]; state.view='dashboard';render(); setTimeout(async()=>{if(window.SKCloud){try{if(await window.SKCloud.session()) await syncCloudIntoState(); else updateCloudStatus();}catch(e){console.warn(e);updateCloudStatus();}}},150);});
 }
 function num(v){
   if(typeof v==='number') return Number.isFinite(v)?v:0;
@@ -164,8 +153,8 @@ function showHistoryType(type){
 }
 function clients(c){c.innerHTML=`<div class="section"><h1>Clientes</h1><div class="form-grid"><div class="field"><label>Nombre</label><input id="newcn"></div><div class="field"><label>Teléfono</label><input id="newcp"></div><div class="field"><label>Correo</label><input id="newce"></div><div class="field"><label>RFC</label><input id="newcr"></div><div class="field full"><label>Dirección</label><input id="newca"></div></div><div class="actions"><button class="btn primary" onclick="addClient()">Guardar cliente</button></div></div><div class="section"><h2>Clientes registrados</h2>${state.clients.length?`<div class="table-wrap"><table class="table"><tr><th>Nombre</th><th>Teléfono</th><th>Correo</th><th>RFC</th></tr>${state.clients.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.phone)}</td><td>${esc(x.email)}</td><td>${esc(x.rfc)}</td></tr>`).join('')}</table></div>`:'<div class="empty">No hay clientes registrados.</div>'}</div>`}
 function addClient(){const x={name:newcn.value,phone:newcp.value,email:newce.value,rfc:newcr.value,address:newca.value};if(!x.name)return toast('Escribe el nombre del cliente');state.clients.push(x);save();render();toast('Cliente guardado')}
-function products(c){c.innerHTML=`<div class="section"><h1>Productos / Servicios</h1><div class="form-grid"><div class="field"><label>Descripción</label><input id="npn"></div><div class="field"><label>Precio</label><input id="npp" inputmode="decimal"></div></div><div class="actions"><button class="btn primary" onclick="addProduct()">Guardar producto</button></div></div><div class="section"><h2>Catálogo</h2>${state.products.length?`<div class="table-wrap"><table class="table"><tr><th>Descripción</th><th>Precio</th></tr>${state.products.map(x=>`<tr><td>${esc(x.name)}</td><td>${money(x.price)}</td></tr>`).join('')}</table></div>`:'<div class="empty">No hay productos.</div>'}</div>`}
-function addProduct(){if(!npn.value)return toast('Escribe una descripción');state.products.push({name:npn.value,price:Number(npp.value)||0});save();render();toast('Producto guardado')}
+function products(c){c.innerHTML=`<div class="section"><h1>Productos / Servicios</h1><p class="muted">Puedes guardar una imagen de referencia para cada artículo o servicio.</p><div class="form-grid"><div class="field"><label>Descripción</label><input id="npn"></div><div class="field"><label>Precio</label><input id="npp" inputmode="decimal"></div><div class="field"><label>Existencia</label><input id="nps" inputmode="decimal" value="0"></div><div class="field"><label>Stock mínimo</label><input id="npmin" inputmode="decimal" value="0"></div><div class="field full"><label>Imagen del producto / servicio</label><input id="npi" type="file" accept="image/*"></div></div><div class="actions"><button class="btn primary" onclick="addProduct()">Guardar producto</button></div></div><div class="section"><h2>Catálogo</h2>${state.products.length?`<div class="table-wrap"><table class="table"><tr><th>Imagen</th><th>Descripción</th><th>Precio</th><th>Existencia</th><th>Estado</th></tr>${state.products.map(x=>`<tr><td>${x.image?`<img src="${x.image}" alt="Producto" style="width:70px;height:55px;object-fit:contain;border-radius:8px;border:1px solid #ddd">`:'—'}</td><td>${esc(x.name)}</td><td>${money(x.price)}</td><td>${esc(x.stock??0)}</td><td>${num(x.stock??0)<=num(x.minStock??0)?'<span class="badge warn">Stock bajo</span>':'<span class="badge ok">Disponible</span>'}</td></tr>`).join('')}</table></div>`:'<div class="empty">No hay productos.</div>'}</div>`}
+async function addProduct(){if(!npn.value)return toast('Escribe una descripción');let image='';try{if(npi.files&&npi.files[0])image=await resizeImage(npi.files[0],900);}catch(e){return toast('No se pudo cargar la imagen');}state.products.push({name:npn.value,price:Number(npp.value)||0,stock:Number(nps.value)||0,minStock:Number(npmin.value)||0,image});save();render();toast('Producto guardado')}
 
 function tools(c){
  c.innerHTML=`<div class="section"><div class="actions" style="margin-top:0"><button class="btn outline" type="button" onclick="state.view='dashboard';render()">← Volver al inicio</button><button class="btn danger" type="button" onclick="newToolList()">＋ Nueva lista</button></div>
