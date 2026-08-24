@@ -15,7 +15,7 @@
   async function signOut(){ if(client) await client.auth.signOut({scope:'local'}); }
   async function saveState(state){
     const s=await session(); if(!s) return {skipped:true};
-    const payload={settings:state.settings,clients:state.clients,products:state.products,documents:state.documents};
+    const payload={settings:state.settings,clients:state.clients,products:state.products,documents:state.documents,toolLists:state.toolLists};
     const {error}=await client.from('company_state').upsert({user_id:s.user.id,payload,updated_at:new Date().toISOString()},{onConflict:'user_id'});
     if(error) throw error; return {ok:true};
   }

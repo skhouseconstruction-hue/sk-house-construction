@@ -30,7 +30,7 @@ body,button,input,textarea,select{font-family:Arial,Helvetica,sans-serif}
 @media(max-width:850px){.doc-company{font-size:18px}.doc-company-data{font-size:9px;line-height:1.4}.doc-meta{min-width:95px}}
 
 /* V10 — footer limpio y cálculo automático robusto */
-.doc-notes{margin-top:18px;padding-top:10px;border-top:1px solid #e1e6ed;font-size:11px;color:#444}
+.doc-notes{margin:12px 0 16px;padding:7px 2px 9px;border-top:1px solid #d9e1ea;border-bottom:1px solid #d9e1ea;font-size:10.5px;color:#3f4b59;line-height:1.45;white-space:pre-wrap}.doc-notes span{color:#174f8f;font-weight:700;margin-right:4px}
 .doc-foot{margin-top:24px!important;border-top:0!important;padding-top:0!important;text-align:center!important;font-family:Arial,Helvetica,sans-serif!important;font-size:12px!important;font-weight:400!important;color:#8a8f96!important}
 
 .cloud-ok{color:#167447;font-weight:700}.cloud-ok::first-letter{color:#20a866}
@@ -50,3 +50,170 @@ body,button,input,textarea,select{font-family:Arial,Helvetica,sans-serif}
 @media(max-width:700px){.tool-row{grid-template-columns:32px 1fr 70px 70px 38px;font-size:12px}.article-images{grid-template-columns:1fr 1fr}}
 
 .item-image{display:inline-flex;flex-direction:column;gap:4px;vertical-align:top;margin:6px 6px 0 0;padding:5px;border:1px solid #ddd;border-radius:8px;background:#fff}.item-image img{width:95px;height:70px;object-fit:contain;border-radius:5px}.item-image-actions{display:flex;gap:4px}.mini{font-size:11px!important;padding:4px 7px!important}.image-tools{margin-top:6px}.badge{display:inline-block;padding:3px 7px;border-radius:999px;font-size:11px}.badge.warn{background:#fff1d6;color:#8a5a00}.badge.ok{background:#e8f7ee;color:#1f6b3b}.annotation{font-size:11px;line-height:1.25;color:#555;max-width:110px;margin-top:2px}
+
+/* V15 — navegación global y menú lateral funcional */
+.sidebar{transition:transform .2s ease}.back-global{margin-right:0}.sidebar .nav{transition:background .15s ease,transform .15s ease}.sidebar .nav:active{transform:scale(.98)}
+.sidebar-toggle{display:none;border:0;background:#092d5c;color:#fff;border-radius:9px;padding:10px 12px;font-weight:800}.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:4}.sidebar-overlay.show{display:block}
+@media(max-width:850px){.sidebar{transform:translateX(-100%);display:block;width:260px;box-shadow:8px 0 24px rgba(0,0,0,.15)}.sidebar.open{transform:translateX(0)}.sidebar-toggle{display:inline-flex;align-items:center;justify-content:center}.topbar{position:sticky}.top-actions{flex-wrap:wrap}.top-actions .back-global{flex:0 0 auto}.mobile-brand{order:0}.sidebar-toggle{position:absolute;left:10px;top:12px}.mobile-brand{padding-left:48px}.top-actions{order:2}.content{padding-bottom:30px}}
+@media(min-width:851px){.sidebar-overlay{display:none!important}}
+
+.item-image{display:inline-flex;flex-direction:column;vertical-align:top;gap:5px;margin:6px;padding:7px;border:1px solid #dfe6ee;border-radius:9px;background:#fafcff}.image-size-row{display:flex;align-items:center;gap:5px}.image-size-row input[type=range]{width:90px}.tool-row-rich{align-items:start}.company-auto{padding:10px 14px;background:#f7f9fc;border-left:4px solid #174f8f;border-radius:8px;margin-bottom:12px}.mini{padding:6px 9px;font-size:11px}.annotation{font-size:11px;color:#174f8f;font-weight:700}
+
+.global-search{position:relative;max-width:900px;margin:10px auto 18px;padding:0 18px}
+.global-search label{display:block;font:600 13px Arial,sans-serif;color:#173b67;margin-bottom:6px}
+.global-search input{width:100%;box-sizing:border-box;border:1px solid #d7e0ea;border-radius:9px;padding:11px 13px;font:15px Arial,sans-serif;background:#fff}
+.global-search-results{display:none;position:absolute;z-index:50;left:18px;right:18px;top:62px;background:#fff;border:1px solid #d7e0ea;border-radius:9px;box-shadow:0 8px 22px rgba(20,40,70,.12);overflow:hidden}
+.global-search-results.open{display:block}
+.search-hit{width:100%;display:grid;grid-template-columns:150px 1fr auto;gap:10px;text-align:left;border:0;border-bottom:1px solid #edf1f5;background:#fff;padding:10px 12px;cursor:pointer}
+.search-hit:hover{background:#f5f8fc}
+.search-type{font:600 11px Arial,sans-serif;color:#315b88;text-transform:uppercase}
+.search-name{font:14px Arial,sans-serif;color:#1e2c3b}
+.search-price{font:600 13px Arial,sans-serif;color:#173b67}
+.search-empty{padding:13px;font:14px Arial,sans-serif;color:#6b7785}
+@media(max-width:700px){
+ .global-search{padding:0 10px}
+ .global-search-results{left:10px;right:10px}
+ .search-hit{grid-template-columns:1fr auto}
+ .search-type{grid-column:1/-1}
+}
+
+.catalog-picker{display:block;width:100%;margin-bottom:6px;padding:7px 9px;border:1px solid #d7e0ea;border-radius:7px;font:13px Arial,sans-serif;background:#fff;color:#23364d}
+.client-section .form-grid{align-items:end}
+
+.section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.archive-search{margin:18px 0 12px}
+.archive-search label{display:block;font:600 13px Arial,sans-serif;color:#173b67;margin-bottom:6px}
+.archive-search input{width:100%;box-sizing:border-box;border:1px solid #d7e0ea;border-radius:9px;padding:12px 13px;font:15px Arial,sans-serif;background:#fff}
+.archive-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.archive-filter.active{box-shadow:inset 0 -2px 0 rgba(8,43,92,.25)}
+.archive-type{font:600 11px Arial,sans-serif;color:#315b88}
+@media(max-width:700px){.section-head{display:block}.archive-filters .btn{min-width:0}.archive-search input{font-size:16px}}
+
+.sk-client-autofill{position:relative;max-width:720px;margin:8px 0 14px}
+.sk-client-autofill label{display:block;font:600 13px Arial,sans-serif;margin-bottom:5px}
+.sk-client-autofill input{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #d5dde7;border-radius:8px;font:15px Arial,sans-serif}
+.sk-client-suggestions{display:none;position:absolute;z-index:100;left:0;right:0;top:58px;background:#fff;border:1px solid #d5dde7;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,.10);overflow:hidden}
+.sk-client-suggestions.open{display:block}
+.sk-client-suggestions button{display:block;width:100%;padding:10px 12px;text-align:left;border:0;border-bottom:1px solid #edf1f5;background:#fff;cursor:pointer;font:14px Arial,sans-serif}
+.sk-client-suggestions button:hover{background:#f4f7fa}
+.sk-client-suggestions .empty{padding:10px;font:13px Arial,sans-serif;color:#697586}
+
+.v24-client-picker{max-width:900px;margin:10px auto 16px;padding:12px;border:1px solid #d9e2ec;border-radius:10px;background:#fff;font-family:Arial,sans-serif}
+.v24-client-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}
+.v24-client-head label{font-weight:700;font-size:14px;color:#173b67}
+.v24-client-head button{border:1px solid #b9c8d8;background:#f6f9fc;border-radius:7px;padding:8px 10px;cursor:pointer}
+.v24-client-picker input{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #cfd9e4;border-radius:8px;font:15px Arial,sans-serif}
+.v24-client-results{display:none;position:relative;margin-top:6px;border:1px solid #d5dee8;border-radius:8px;overflow:hidden}
+.v24-client-results.open{display:block}
+.v24-client-results button{display:block;width:100%;padding:10px 12px;text-align:left;border:0;border-bottom:1px solid #edf1f5;background:#fff;cursor:pointer}
+.v24-client-results button:hover{background:#f4f7fa}
+.v24-client-results strong,.v24-client-results span{display:block}
+.v24-client-results span{margin-top:2px;font-size:12px;color:#667382}
+.v24-client-help{margin:7px 0 0;font-size:12px;color:#6a7580}
+.v24-empty{padding:10px;font-size:13px;color:#6a7580}
+
+.product-form{display:grid;gap:10px;max-width:800px}
+.product-form label{font:600 13px Arial,sans-serif;color:#334}
+.product-form input,.product-form textarea,.product-search input{width:100%;box-sizing:border-box;padding:10px;border:1px solid #d5dee8;border-radius:8px;font:15px Arial,sans-serif}
+.product-actions{display:flex;gap:10px;flex-wrap:wrap}
+.product-actions button,.product-card button{padding:9px 13px;border:1px solid #c5d0dc;border-radius:8px;background:#f5f8fb;cursor:pointer}
+.product-search{margin:18px 0 10px;max-width:800px}
+.product-card{display:flex;justify-content:space-between;gap:12px;align-items:center;border:1px solid #e0e6ed;border-radius:9px;padding:12px;margin:7px 0;background:#fff}
+.product-card b{display:block;margin-top:4px}
+
+.client-list-search input{min-width:280px;padding:9px 11px;border:1px solid #d5dee8;border-radius:8px;font:14px Arial,sans-serif}
+@media(max-width:700px){.client-list-search input{min-width:0;width:100%}}
+
+.product-image-preview{margin-top:8px;max-width:220px}
+.product-image-preview img{display:block;max-width:220px;max-height:180px;object-fit:contain;border:1px solid #dbe3eb;border-radius:8px;padding:4px;background:#fff}
+
+
+/* PRINT ONLY THE CURRENT DOCUMENT */
+@media print{
+  @page{size:A4;margin:10mm}
+  html,body{background:#fff!important;margin:0!important;padding:0!important}
+  body *{visibility:hidden!important}
+  #modal{display:block!important;visibility:visible!important;position:absolute!important;inset:0!important;background:#fff!important;padding:0!important;overflow:visible!important}
+  #modal .modal-card{display:block!important;visibility:visible!important;position:static!important;max-width:none!important;width:100%!important;max-height:none!important;overflow:visible!important;margin:0!important;padding:0!important;border:0!important;box-shadow:none!important;background:#fff!important}
+  #paper,#paper *,#modal .tool-paper,#modal .tool-paper *{visibility:visible!important}
+  #paper,#modal .tool-paper{display:block!important;position:static!important;width:100%!important;max-width:none!important;margin:0!important;padding:0!important;box-shadow:none!important;border:0!important;background:#fff!important}
+  .no-print,.modal .actions,.modal button{display:none!important}
+}
+
+.share-menu{position:absolute;right:0;top:calc(100% + 6px);min-width:190px;background:#fff;border:1px solid #dbe3eb;border-radius:10px;box-shadow:0 10px 28px rgba(0,0,0,.14);padding:6px;z-index:10000}
+.share-menu button{display:block;width:100%;border:0;background:#fff;text-align:left;padding:10px 12px;border-radius:7px;cursor:pointer;font:inherit}
+.share-menu button:hover{background:#f3f6fa}
+
+.download-menu{position:absolute;right:0;top:calc(100% + 6px);min-width:190px;background:#fff;border:1px solid #dbe3eb;border-radius:10px;box-shadow:0 10px 28px rgba(0,0,0,.14);padding:6px;z-index:10000}
+.download-menu button{display:block;width:100%;border:0;background:#fff;text-align:left;padding:10px 12px;border-radius:7px;cursor:pointer;font:inherit}
+.download-menu button:hover{background:#f3f6fa}
+
+.share-menu.hidden,.download-menu.hidden{display:none!important}
+
+
+/* V9 — Datos bancarios profesionales azul + negro */
+.doc-bottom-grid{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:22px;align-items:end;margin-top:25px}
+.bank-info{border:1px solid #d7dee8;border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 3px 10px rgba(9,45,92,.07)}
+.bank-title{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#092d5c;color:#fff;padding:9px 12px;border-bottom:4px solid #174f8f}
+.bank-title span{font-size:11px;font-weight:800;letter-spacing:.7px}
+.bank-title small{font-size:9px;font-weight:600;color:#dbe7f5;text-align:right}
+.bank-accounts{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px}
+.bank-card{border:1px solid #dbe2ea;border-radius:7px;background:#f8fafc;overflow:hidden}
+.bank-card-title{background:#174f8f;color:#fff;padding:6px 8px;font-size:10px;font-weight:800;letter-spacing:.5px}
+.bank-row{display:flex;justify-content:space-between;gap:10px;padding:5px 8px;border-bottom:1px solid #e4e9ef;font-size:9px;line-height:1.25}
+.bank-row:last-child{border-bottom:0}
+.bank-row span{color:#5b6878;font-weight:600;white-space:nowrap}
+.bank-row b{color:#111827;text-align:right;font-weight:700;word-break:break-word}.bank-account-row{gap:7px}.bank-account-row span{font-size:8.5px}.bank-account-row b{font-size:8.25px;white-space:nowrap;word-break:normal;letter-spacing:-.05px;flex:1;min-width:0}
+.doc-bottom-grid .doc-total{align-self:end}
+@media(max-width:850px){.doc-bottom-grid{grid-template-columns:1fr;gap:14px}.bank-accounts{grid-template-columns:1fr}.bank-title{align-items:flex-start;flex-direction:column;gap:3px}.doc-bottom-grid .doc-total{width:100%!important}}
+@media print{.bank-info{box-shadow:none}}
+
+/* Ajuste exclusivo para PDF: mantiene la nota sencilla y evita que el contenido inferior se recorte. */
+.pdf-compact{padding:24px!important}
+.pdf-compact .doc-head{gap:12px;padding-bottom:10px}
+.pdf-compact .doc-head img{width:82px;height:82px}
+.pdf-compact .doc-company{font-size:21px}
+.pdf-compact .doc-client{margin:12px 0;padding:9px}
+.pdf-compact .doc-table th,.pdf-compact .doc-table td{padding:5px 6px;font-size:10px}
+.pdf-compact .doc-table img{width:95px!important;max-width:100%!important;max-height:70px!important;object-fit:contain}
+.pdf-compact .doc-foot{font-size:9px}
+.pdf-compact .doc-bottom-grid{grid-template-columns:minmax(0,1fr) 220px;gap:10px}
+.pdf-compact .bank-accounts{gap:5px;padding:6px}
+.pdf-compact .bank-row{padding:3px 6px;font-size:8px}
+.pdf-compact .bank-account-row b{font-size:7.7px}
+.pdf-compact .bank-card-title{padding:4px 6px;font-size:8.5px}
+.pdf-compact .doc-notes{margin:8px 0 10px;padding:5px 2px 6px;font-size:9.5px;line-height:1.35}
+.pdf-compact .doc-bottom-grid{gap:14px;margin-top:14px}
+.pdf-compact .bank-accounts{gap:7px;padding:7px}
+.pdf-compact .bank-title{padding:7px 10px;border-bottom-width:3px}
+.pdf-compact .bank-row{padding:4px 7px;font-size:8.5px}
+.pdf-compact .bank-card-title{padding:5px 7px;font-size:9px}
+.pdf-compact .doc-total{margin-top:10px!important}
+.pdf-compact .doc-foot{margin-top:16px;padding-top:8px}
+
+/* V10 — Datos bancarios solo texto, limpios y profesionales */
+.bank-info{border:0!important;border-radius:0!important;overflow:visible!important;background:transparent!important;box-shadow:none!important}
+.bank-title{display:block!important;background:transparent!important;color:#092d5c!important;padding:0 0 5px!important;border:0!important;border-bottom:1.5px solid #174f8f!important}
+.bank-title span{font-size:10px!important;font-weight:800!important;letter-spacing:.7px!important}
+.bank-accounts{display:grid!important;grid-template-columns:1fr 1fr!important;gap:24px!important;padding:8px 0 0!important}
+.bank-card{border:0!important;border-radius:0!important;background:transparent!important;overflow:visible!important}
+.bank-card-title{background:transparent!important;color:#174f8f!important;padding:0 0 4px!important;font-size:9px!important;font-weight:800!important;letter-spacing:.5px!important}
+.bank-row{display:flex!important;justify-content:flex-start!important;gap:7px!important;padding:2.5px 0!important;border:0!important;font-size:8.5px!important;line-height:1.3!important}
+.bank-row span{color:#5b6878!important;font-weight:600!important;white-space:nowrap!important}
+.bank-row b{color:#111827!important;text-align:left!important;font-weight:600!important;word-break:normal!important}
+.bank-account-row{gap:7px!important}.bank-account-row span{font-size:8.5px!important}.bank-account-row b{font-size:8.25px!important;white-space:nowrap!important;letter-spacing:0!important}
+@media(max-width:850px){.bank-accounts{grid-template-columns:1fr!important;gap:12px!important}}
+.pdf-compact .bank-accounts{gap:18px!important;padding:7px 0 0!important}
+.pdf-compact .bank-title{padding:0 0 4px!important;border-bottom-width:1px!important}
+.pdf-compact .bank-row{padding:2px 0!important;font-size:8px!important}
+.pdf-compact .bank-card-title{padding:0 0 3px!important;font-size:8.5px!important}
+.pdf-compact .bank-account-row b{font-size:7.7px!important}
+
+/* Corrección: evitar que las cantidades se corten en el PDF */
+.doc-table .doc-num{white-space:nowrap!important;word-break:normal!important;overflow:visible!important;text-align:right!important;min-width:78px!important;}
+.doc-total{width:300px!important;min-width:300px!important;}
+.doc-total>div{white-space:nowrap!important;min-width:0;}
+.doc-total>div>span:last-child{white-space:nowrap!important;min-width:92px!important;text-align:right!important;display:inline-block!important;}
+.pdf-compact .doc-table .doc-num{font-size:10px!important;min-width:82px!important;}
+.pdf-compact .doc-total{width:250px!important;min-width:250px!important;}
+.pdf-compact .doc-total>div>span:last-child{min-width:100px!important;}

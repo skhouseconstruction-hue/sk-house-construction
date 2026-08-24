@@ -10,8 +10,8 @@
 <link rel="apple-touch-icon" href="logo.jpg">
 <meta name="application-name" content="SK House Construction">
 <link rel="stylesheet" href="styles.css">
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="cloud.js"></script>
 </head>
@@ -23,15 +23,23 @@
     <button class="nav" data-view="quote">▣ <span>Cotizaciones</span></button>
     <button class="nav" data-view="note">▤ <span>Notas de Venta</span></button>
     <button class="nav" data-view="clients">♙ <span>Clientes</span></button>
-    <button class="nav" data-view="products">◈ <span>Productos / Servicios</span></button>
+    <button class="nav" data-view="products">📦 <span>Productos</span></button>
+    <button class="nav" data-view="tools">🧰 <span>Lista de Herramientas</span></button>
     <button class="nav" data-view="history">◷ <span>Historial</span></button>
+    <button class="nav" data-view="archive">▤ <span>Todos los documentos</span></button>
     <button class="nav" data-view="settings">⚙ <span>Configuración</span></button>
   </aside>
 
-  <main class="main">
-    <header class="topbar">
+  
+<div class="global-search">
+  <label for="globalSearch">Buscar</label>
+  <input id="globalSearch" type="search" placeholder="Buscar clientes, cotizaciones, notas, productos o listas de herramientas…" autocomplete="off">
+  <div id="globalSearchResults" class="global-search-results" aria-live="polite"></div>
+</div>
+<main class="main">
+    <header class="topbar"><button class="sidebar-toggle" onclick="toggleSidebar()">☰ Menú</button><div id="sidebarOverlay" class="sidebar-overlay"></div>
       <div class="mobile-brand"><img src="logo.jpg" alt=""><strong>SK House Construction</strong></div>
-      <div class="top-actions">
+      <div class="top-actions"><button class="btn outline back-global" onclick="goBack()">← Regresar</button>
         <button class="btn outline" onclick="state.view='settings';render()">⚙ Mis datos</button>
         <button class="btn primary" onclick="newDocument('quote')">＋ Nueva Cotización</button>
         <button class="btn gold" onclick="newDocument('note')">＋ Nota de Venta</button>

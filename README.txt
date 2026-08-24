@@ -1,0 +1,1 @@
+V16: imágenes redimensionables en cotizaciones/notas/listas de herramientas; guardado; datos de empresa persistentes y automáticos en documentos y listas. El logo original se conserva.
