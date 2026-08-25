@@ -217,3 +217,53 @@ body,button,input,textarea,select{font-family:Arial,Helvetica,sans-serif}
 .pdf-compact .doc-table .doc-num{font-size:10px!important;min-width:82px!important;}
 .pdf-compact .doc-total{width:250px!important;min-width:250px!important;}
 .pdf-compact .doc-total>div>span:last-child{min-width:100px!important;}
+
+
+/* V6 — Datos del cliente: orden profesional sin alterar campos ni funciones */
+.client-section-title{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #e6ebf1}
+.client-section-title h2{margin:0 0 3px}
+.client-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px;align-items:start}
+.client-form-grid > .field.full{grid-column:1/-1}
+.client-form-grid > .field{min-width:0}
+.client-group-title{grid-column:1/-1;margin-top:3px;padding:7px 10px;border-left:3px solid #f2a900;background:#f7f9fc;color:#173b67;font-size:12px;font-weight:800;letter-spacing:.2px;text-transform:uppercase}
+.client-name{grid-column:1/-1}
+.client-address{grid-column:1/-1}
+.client-form-grid .field label{font-size:12px;color:#40536b}
+.client-form-grid .field input{min-height:44px}
+.client-form-grid .field input::placeholder{color:#9aa6b4}
+.doc-client{padding:13px 15px;background:#f7f9fc;border:1px solid #dfe6ee;border-left:4px solid #f2a900;border-radius:10px}
+.doc-client-title{font-size:12px;font-weight:800;letter-spacing:.4px;color:#082f6b;margin-bottom:9px}
+.doc-client-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px}
+.doc-client-grid>div{min-width:0}
+.doc-client-grid span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.25px;color:#718096;margin-bottom:2px}
+.doc-client-grid b{display:block;font-size:11px;font-weight:600;color:#1d2d42;line-height:1.35;overflow-wrap:anywhere}
+.doc-client-address{grid-column:1/-1}
+@media(max-width:850px){.client-form-grid{grid-template-columns:1fr}.client-group-title,.client-name,.client-address{grid-column:auto}.doc-client-grid{grid-template-columns:1fr}.doc-client-address{grid-column:auto}}
+@media print{.client-section-title .muted{color:#68788c}.doc-client{break-inside:avoid}}
+
+/* V7 - Presentación profesional de datos del cliente */
+.client-section{border-top:3px solid #082b5c}
+.client-section-title{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.client-kicker{font:800 10px Arial,sans-serif;letter-spacing:1.2px;color:#f2a900;margin-bottom:2px}
+.client-section-title h2{margin:0 0 2px;color:#082b5c}
+.client-form-grid{gap:14px 18px}
+.client-picker-wrap{grid-column:1/-1;padding:0}
+.client-picker-wrap .field{margin:0}
+.client-group-title{margin-top:8px;padding:8px 12px;border-left:4px solid #f2a900;background:linear-gradient(90deg,#f6f8fb,#fff);border-radius:6px;color:#173b67}
+.client-form-grid .field input{border-radius:9px;border:1px solid #cfd9e5;background:#fff;transition:border-color .15s,box-shadow .15s}
+.client-form-grid .field input:focus{border-color:#174f8f;box-shadow:0 0 0 3px rgba(23,79,143,.08);outline:none}
+.doc-client{padding:15px 17px;background:linear-gradient(135deg,#f8fafc,#fff);border:1px solid #d9e2ec;border-left:4px solid #f2a900;box-shadow:0 2px 8px rgba(8,43,92,.05)}
+.doc-client-title{display:flex;align-items:center;justify-content:space-between;padding-bottom:8px;border-bottom:1px solid #e2e8f0;margin-bottom:10px;color:#082f6b}
+.doc-client-grid{gap:9px 20px}
+.doc-client-item{display:flex;flex-direction:column;gap:2px;min-height:30px}
+.doc-client-item span{font:700 9px Arial,sans-serif;letter-spacing:.6px;text-transform:uppercase;color:#6b7b8d}
+.doc-client-item b{font:600 12px Arial,sans-serif;color:#172b45;word-break:break-word}
+.doc-client-main{grid-column:1/-1;padding-bottom:4px}
+.doc-client-address{grid-column:1/-1;border-top:1px solid #edf1f5;padding-top:8px;margin-top:2px}
+@media(max-width:700px){
+ .client-form-grid{grid-template-columns:1fr}
+ .client-group-title,.client-name,.client-address{grid-column:1}
+ .doc-client-grid{grid-template-columns:1fr}
+ .doc-client-main,.doc-client-address{grid-column:1}
+}
+.status.sent{background:#e8f1ff;color:#175a9c}.status.rejected{background:#ffe7e7;color:#a32020}.status.expired{background:#eceff3;color:#5b6470}

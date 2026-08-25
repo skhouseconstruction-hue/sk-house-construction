@@ -1,0 +1,3 @@
+SK House Construction — V18
+
+Se agregó la opción Eliminar con confirmación para documentos, clientes, productos y listas de herramientas. Se conserva el diseño y las funciones de la versión base.

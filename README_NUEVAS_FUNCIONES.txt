@@ -1,5 +1,9 @@
-V14 - Correcciones y mejoras
-- El botón de adjuntar imágenes por concepto ahora aparece realmente en la interfaz.
-- Se pueden cargar varias imágenes por concepto y añadir texto a cada una.
-- Se agregó imagen, existencia y stock mínimo al catálogo de Productos / Servicios.
-- Se corrigió un evento inexistente que podía interrumpir la inicialización de botones del formulario.
+V14 — PDF Y ESTABILIDAD
+
+1. PDF generado directamente, sin captura de pantalla.
+2. El documento mostrado en Vista previa es el mismo que se descarga.
+3. Se evita reutilizar app.js viejo mediante app-v14.js y caché v14.
+4. Fechas de inicio y vencimiento en formato DD/MM/AAAA.
+5. IVA activable/desactivable.
+6. Logo y datos de SK House Construction.
+7. Conceptos, imágenes, notas, bancos, descuento, IVA y total.
