@@ -22,7 +22,36 @@ async function syncCloudIntoState(){
  }catch(e){console.error(e); toast('No se pudo sincronizar con la nube. Revisa la configuración.'); updateCloudStatus();}
 }
 function cloudStatusText(){return window.SKCloud?.configured()?'Configuración de nube guardada':'Nube no configurada'}
-async function updateCloudStatus(){const el=document.getElementById('cloudStatus');if(!el)return;try{const s=window.SKCloud?await window.SKCloud.session():null;el.innerHTML=s?`<span class="cloud-ok">● Conectado: ${esc(s.user.email||'usuario')}</span>`:`<span class="muted">○ ${esc(cloudStatusText())}</span>`}catch(e){el.textContent='○ Nube no disponible'}}
+async function updateCloudStatus(){
+  const el=document.getElementById('cloudStatus');
+  if(!el)return;
+
+  try{
+    if(!window.SKCloud || !window.SKCloud.configured()){
+      el.innerHTML='<span class="muted">Nube no configurada</span>';
+      return;
+    }
+
+    const timeout=new Promise((_,reject)=>
+      setTimeout(()=>reject(new Error('Tiempo de espera agotado')),5000)
+    );
+
+    const s=await Promise.race([
+      window.SKCloud.session(),
+      timeout
+    ]);
+
+    if(s){
+      el.innerHTML='<span class="cloud-ok">☁ Conectado: '+esc(s.user?.email||'usuario')+'</span>';
+    }else{
+      el.innerHTML='<span class="muted">'+esc(cloudStatusText())+'</span>';
+    }
+
+  }catch(e){
+    console.error('Cloud status:',e);
+    el.innerHTML='<span class="muted">☁ No se pudo comprobar la conexión</span>';
+  }
+}
 async function cloudConfigure(){const url=document.getElementById('cloud_url').value.trim(),key=document.getElementById('cloud_key').value.trim();if(!url||!key)return toast('Escribe la URL y la clave pública de Supabase');window.SKCloud.setConfig(url,key);await updateCloudStatus();toast('Configuración de nube guardada')}
 async function cloudLogin(){try{const email=document.getElementById('cloud_email').value.trim(),pass=document.getElementById('cloud_pass').value;if(!email||!pass)return toast('Escribe correo y contraseña');const r=await window.SKCloud.signIn(email,pass);if(r.error)throw r.error;await syncCloudIntoState();toast('Conectado a la nube')}catch(e){console.error(e);toast(e.message||'No se pudo iniciar sesión')}}
 async function cloudSignup(){try{const email=document.getElementById('cloud_email').value.trim(),pass=document.getElementById('cloud_pass').value;if(!email||pass.length<6)return toast('Usa un correo y una contraseña de al menos 6 caracteres');const r=await window.SKCloud.signUp(email,pass);if(r.error)throw r.error; if(r.data.session){await syncCloudIntoState();toast('Cuenta creada y conectada')}else toast('Cuenta creada. Revisa tu correo para confirmar y después inicia sesión.')}catch(e){console.error(e);toast(e.message||'No se pudo crear la cuenta')}}
