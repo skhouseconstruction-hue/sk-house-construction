@@ -1,8 +1,0 @@
-SK House Construction — V14
-
-CAMBIO PRINCIPAL
-- Generación de PDF directa con jsPDF; la cotización/nota ya no depende de html2canvas para crear el PDF.
-- El botón PDF de la vista previa usa el documento que se está mostrando, evitando tomar un documento anterior de state.editing.
-- Se renombró app.js a app-v14.js y se actualizó el Service Worker a v14 para evitar que el navegador/PWA reutilice el app.js anterior desde caché.
-- Fecha de inicio y vencimiento se muestran en formato DD/MM/AAAA en el PDF.
-- Se conservan IVA con interruptor, logotipo, clientes, productos, imágenes de conceptos, notas, datos bancarios y totales.
