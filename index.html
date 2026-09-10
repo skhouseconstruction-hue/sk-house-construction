@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>SK House Construction</title>
 <link rel="icon" type="image/jpeg" href="logo.jpg">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="application-name" content="SK House Construction">
 <meta name="mobile-web-app-capable" content="yes">
@@ -16,45 +16,49 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="cloud.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="cloud.js?v=stable-2.4.2"></script>
 </head>
 <body>
 <div id="app">
-  <aside class="sidebar">
-    <div class="brand"><img src="logo.jpg" alt="SK House Construction"><div>SK House Construction</div></div>
-    <button class="nav active" data-view="dashboard">⌂ <span>Inicio</span></button>
-    <button class="nav" data-view="quote">▣ <span>Cotizaciones</span></button>
-    <button class="nav" data-view="note">▤ <span>Notas de Venta</span></button>
-    <button class="nav" data-view="clients">♙ <span>Clientes</span></button>
-    <button class="nav" data-view="products">📦 <span>Productos</span></button>
-    <button class="nav" data-view="tools">🧰 <span>Lista de Herramientas</span></button>
-    <button class="nav" data-view="history">◷ <span>Historial</span></button>
-    <button class="nav" data-view="archive">▤ <span>Todos los documentos</span></button>
-    <button class="nav" data-view="settings">⚙ <span>Configuración</span></button>
-  </aside>
+ <aside class="sidebar">
+ <div class="brand"><img src="logo.jpg" alt="SK House Construction"><div>SK House Construction</div></div>
+ <button class="nav active" data-view="dashboard">⌂ <span>Inicio</span></button>
+ <button class="nav" data-view="quote">▣ <span>Cotizaciones</span></button>
+ <button class="nav" data-view="note">▤ <span>Notas de Venta</span></button>
+ <button class="nav" data-view="clients"> <span>Clientes</span></button>
+ <button class="nav" data-view="products"><span class="emoji"></span> <span>Productos</span></button>
+ <button class="nav" data-view="tools"><span class="emoji"></span> <span>Lista de Herramientas</span></button>
+ <button class="nav" data-view="history">◷ <span>Historial</span></button>
+ <button class="nav" data-view="archive">▤ <span>Todos los documentos</span></button>
+ <button class="nav" data-view="settings"><span class="emoji"></span> <span>Configuración</span></button>
+ <button class="nav" data-view="templates"><span class="emoji"></span> <span>Plantillas</span></button>
+ </aside>
 
-  
+ 
 <div class="global-search">
-  <label for="globalSearch">Buscar</label>
-  <input id="globalSearch" type="search" placeholder="Buscar clientes, cotizaciones, notas, productos o listas de herramientas…" autocomplete="off">
-  <div id="globalSearchResults" class="global-search-results" aria-live="polite"></div>
+ <label for="globalSearch">Buscar</label>
+ <input id="globalSearch" type="search" placeholder="Buscar clientes, cotizaciones, notas, productos o listas de herramientas…" autocomplete="off">
+ <div id="globalSearchResults" class="global-search-results" aria-live="polite"></div>
 </div>
 <main class="main">
-    <header class="topbar"><button class="sidebar-toggle" onclick="toggleSidebar()">☰ Menú</button><div id="sidebarOverlay" class="sidebar-overlay"></div>
-      <div class="mobile-brand"><img src="logo.jpg" alt=""><strong>SK House Construction</strong></div>
-      <div class="top-actions"><button class="btn outline back-global" onclick="goBack()">← Regresar</button>
-        <button class="btn outline" onclick="state.view='settings';render()">⚙ Mis datos</button>
-        <button class="btn primary" onclick="newDocument('quote')">＋ Nueva Cotización</button>
-        <button class="btn gold" onclick="newDocument('note')">＋ Nota de Venta</button>
-      </div>
-    </header>
-    <section id="content"></section>
-  </main>
+ <header class="topbar"><button class="sidebar-toggle" onclick="toggleSidebar()"> Menú</button><div id="sidebarOverlay" class="sidebar-overlay"></div>
+ <div class="mobile-brand"><img src="logo.jpg" alt=""><strong>SK House Construction</strong></div>
+ <div class="top-actions"><button class="btn outline back-global" onclick="goBack()">← Regresar</button>
+ <button class="btn outline" onclick="state.view='settings';render()"><span class="emoji"></span> Mis datos</button>
+ <button class="btn primary" onclick="newDocument('quote')">＋ Nueva Cotización</button>
+ <button class="btn gold" onclick="newDocument('note')">＋ Nota de Venta</button>
+ <button class="btn outline utility-btn" onclick="openScanner()"><span class="emoji"></span> Escanear</button>
+ <button class="btn outline utility-btn" id="globalMicBtn" onclick="toggleDictation()"><span class="emoji"></span> Dictado</button>
+ </div>
+ </header>
+ <section id="content"></section>
+ </main>
 </div>
 
 <div id="toast" class="toast"></div>
 <div id="modal" class="modal hidden"></div>
-<script src="app-v17.js"></script>
+<script src="app.js?v=stable-2.4.2"></script>
 <script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}</script>
 </body>
 </html>

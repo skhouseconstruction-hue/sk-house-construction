@@ -130,14 +130,14 @@ body,button,input,textarea,select{font-family:Arial,Helvetica,sans-serif}
 
 /* PRINT ONLY THE CURRENT DOCUMENT */
 @media print{
-  @page{size:A4;margin:10mm}
-  html,body{background:#fff!important;margin:0!important;padding:0!important}
-  body *{visibility:hidden!important}
-  #modal{display:block!important;visibility:visible!important;position:absolute!important;inset:0!important;background:#fff!important;padding:0!important;overflow:visible!important}
-  #modal .modal-card{display:block!important;visibility:visible!important;position:static!important;max-width:none!important;width:100%!important;max-height:none!important;overflow:visible!important;margin:0!important;padding:0!important;border:0!important;box-shadow:none!important;background:#fff!important}
-  #paper,#paper *,#modal .tool-paper,#modal .tool-paper *{visibility:visible!important}
-  #paper,#modal .tool-paper{display:block!important;position:static!important;width:100%!important;max-width:none!important;margin:0!important;padding:0!important;box-shadow:none!important;border:0!important;background:#fff!important}
-  .no-print,.modal .actions,.modal button{display:none!important}
+ @page{size:A4;margin:10mm}
+ html,body{background:#fff!important;margin:0!important;padding:0!important}
+ body *{visibility:hidden!important}
+ #modal{display:block!important;visibility:visible!important;position:absolute!important;inset:0!important;background:#fff!important;padding:0!important;overflow:visible!important}
+ #modal .modal-card{display:block!important;visibility:visible!important;position:static!important;max-width:none!important;width:100%!important;max-height:none!important;overflow:visible!important;margin:0!important;padding:0!important;border:0!important;box-shadow:none!important;background:#fff!important}
+ #paper,#paper *,#modal .tool-paper,#modal .tool-paper *{visibility:visible!important}
+ #paper,#modal .tool-paper{display:block!important;position:static!important;width:100%!important;max-width:none!important;margin:0!important;padding:0!important;box-shadow:none!important;border:0!important;background:#fff!important}
+ .no-print,.modal .actions,.modal button{display:none!important}
 }
 
 .share-menu{position:absolute;right:0;top:calc(100% + 6px);min-width:190px;background:#fff;border:1px solid #dbe3eb;border-radius:10px;box-shadow:0 10px 28px rgba(0,0,0,.14);padding:6px;z-index:10000}
@@ -150,64 +150,6 @@ body,button,input,textarea,select{font-family:Arial,Helvetica,sans-serif}
 
 .share-menu.hidden,.download-menu.hidden{display:none!important}
 
-
-/* V9 — Datos bancarios profesionales azul + negro */
-.doc-bottom-grid{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:22px;align-items:end;margin-top:25px}
-.bank-info{border:1px solid #d7dee8;border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 3px 10px rgba(9,45,92,.07)}
-.bank-title{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#092d5c;color:#fff;padding:9px 12px;border-bottom:4px solid #174f8f}
-.bank-title span{font-size:11px;font-weight:800;letter-spacing:.7px}
-.bank-title small{font-size:9px;font-weight:600;color:#dbe7f5;text-align:right}
-.bank-accounts{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px}
-.bank-card{border:1px solid #dbe2ea;border-radius:7px;background:#f8fafc;overflow:hidden}
-.bank-card-title{background:#174f8f;color:#fff;padding:6px 8px;font-size:10px;font-weight:800;letter-spacing:.5px}
-.bank-row{display:flex;justify-content:space-between;gap:10px;padding:5px 8px;border-bottom:1px solid #e4e9ef;font-size:9px;line-height:1.25}
-.bank-row:last-child{border-bottom:0}
-.bank-row span{color:#5b6878;font-weight:600;white-space:nowrap}
-.bank-row b{color:#111827;text-align:right;font-weight:700;word-break:break-word}.bank-account-row{gap:7px}.bank-account-row span{font-size:8.5px}.bank-account-row b{font-size:8.25px;white-space:nowrap;word-break:normal;letter-spacing:-.05px;flex:1;min-width:0}
-.doc-bottom-grid .doc-total{align-self:end}
-@media(max-width:850px){.doc-bottom-grid{grid-template-columns:1fr;gap:14px}.bank-accounts{grid-template-columns:1fr}.bank-title{align-items:flex-start;flex-direction:column;gap:3px}.doc-bottom-grid .doc-total{width:100%!important}}
-@media print{.bank-info{box-shadow:none}}
-
-/* Ajuste exclusivo para PDF: mantiene la nota sencilla y evita que el contenido inferior se recorte. */
-.pdf-compact{padding:24px!important}
-.pdf-compact .doc-head{gap:12px;padding-bottom:10px}
-.pdf-compact .doc-head img{width:82px;height:82px}
-.pdf-compact .doc-company{font-size:21px}
-.pdf-compact .doc-client{margin:12px 0;padding:9px}
-.pdf-compact .doc-table th,.pdf-compact .doc-table td{padding:5px 6px;font-size:10px}
-.pdf-compact .doc-table img{width:95px!important;max-width:100%!important;max-height:70px!important;object-fit:contain}
-.pdf-compact .doc-foot{font-size:9px}
-.pdf-compact .doc-bottom-grid{grid-template-columns:minmax(0,1fr) 220px;gap:10px}
-.pdf-compact .bank-accounts{gap:5px;padding:6px}
-.pdf-compact .bank-row{padding:3px 6px;font-size:8px}
-.pdf-compact .bank-account-row b{font-size:7.7px}
-.pdf-compact .bank-card-title{padding:4px 6px;font-size:8.5px}
-.pdf-compact .doc-notes{margin:8px 0 10px;padding:5px 2px 6px;font-size:9.5px;line-height:1.35}
-.pdf-compact .doc-bottom-grid{gap:14px;margin-top:14px}
-.pdf-compact .bank-accounts{gap:7px;padding:7px}
-.pdf-compact .bank-title{padding:7px 10px;border-bottom-width:3px}
-.pdf-compact .bank-row{padding:4px 7px;font-size:8.5px}
-.pdf-compact .bank-card-title{padding:5px 7px;font-size:9px}
-.pdf-compact .doc-total{margin-top:10px!important}
-.pdf-compact .doc-foot{margin-top:16px;padding-top:8px}
-
-/* V10 — Datos bancarios solo texto, limpios y profesionales */
-.bank-info{border:0!important;border-radius:0!important;overflow:visible!important;background:transparent!important;box-shadow:none!important}
-.bank-title{display:block!important;background:transparent!important;color:#092d5c!important;padding:0 0 5px!important;border:0!important;border-bottom:1.5px solid #174f8f!important}
-.bank-title span{font-size:10px!important;font-weight:800!important;letter-spacing:.7px!important}
-.bank-accounts{display:grid!important;grid-template-columns:1fr 1fr!important;gap:24px!important;padding:8px 0 0!important}
-.bank-card{border:0!important;border-radius:0!important;background:transparent!important;overflow:visible!important}
-.bank-card-title{background:transparent!important;color:#174f8f!important;padding:0 0 4px!important;font-size:9px!important;font-weight:800!important;letter-spacing:.5px!important}
-.bank-row{display:flex!important;justify-content:flex-start!important;gap:7px!important;padding:2.5px 0!important;border:0!important;font-size:8.5px!important;line-height:1.3!important}
-.bank-row span{color:#5b6878!important;font-weight:600!important;white-space:nowrap!important}
-.bank-row b{color:#111827!important;text-align:left!important;font-weight:600!important;word-break:normal!important}
-.bank-account-row{gap:7px!important}.bank-account-row span{font-size:8.5px!important}.bank-account-row b{font-size:8.25px!important;white-space:nowrap!important;letter-spacing:0!important}
-@media(max-width:850px){.bank-accounts{grid-template-columns:1fr!important;gap:12px!important}}
-.pdf-compact .bank-accounts{gap:18px!important;padding:7px 0 0!important}
-.pdf-compact .bank-title{padding:0 0 4px!important;border-bottom-width:1px!important}
-.pdf-compact .bank-row{padding:2px 0!important;font-size:8px!important}
-.pdf-compact .bank-card-title{padding:0 0 3px!important;font-size:8.5px!important}
-.pdf-compact .bank-account-row b{font-size:7.7px!important}
 
 /* Corrección: evitar que las cantidades se corten en el PDF */
 .doc-table .doc-num{white-space:nowrap!important;word-break:normal!important;overflow:visible!important;text-align:right!important;min-width:78px!important;}
@@ -267,3 +209,334 @@ body,button,input,textarea,select{font-family:Arial,Helvetica,sans-serif}
  .doc-client-main,.doc-client-address{grid-column:1}
 }
 .status.sent{background:#e8f1ff;color:#175a9c}.status.rejected{background:#ffe7e7;color:#a32020}.status.expired{background:#eceff3;color:#5b6470}
+
+/* Datos bancarios — versión estable: compacta, legible y sin ocultar dígitos. */
+.bank-info{min-width:0;border:0;border-radius:0;background:transparent;box-shadow:none;overflow:visible}
+.bank-title{display:block;background:transparent;color:#092d5c;padding:0 0 5px;border:0;border-bottom:1.5px solid #174f8f}
+.bank-title span{font-size:10px;font-weight:800;letter-spacing:.7px}
+.bank-accounts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;padding:8px 0 0}
+.bank-card{min-width:0;padding:0 0 2px;border:0;background:transparent;overflow:visible}
+.bank-card-title{color:#174f8f;padding:0 0 4px;font-size:9px;font-weight:800;letter-spacing:.5px}
+.bank-pair{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:2px 0;border-bottom:1px solid #e9edf2}
+.bank-pair:last-child{border-bottom:0}
+.bank-row{display:grid;grid-template-columns:max-content minmax(0,1fr);align-items:start;gap:6px;min-width:0;padding:2px 0;font-size:8.5px;line-height:1.3}
+.bank-row span{color:#5b6878;font-weight:600;white-space:nowrap}
+.bank-row b{color:#111827;min-width:0;font-weight:600;text-align:left;overflow:visible;text-overflow:clip;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
+.bank-account-row b,.bank-card-number-row b{font-variant-numeric:tabular-nums;letter-spacing:.01em;overflow-wrap:anywhere;word-break:break-all}
+.pdf-compact .bank-accounts{gap:14px;padding:6px 0 0}
+.pdf-compact .bank-row{padding:1.5px 0;font-size:8px}
+.pdf-compact .bank-row b{overflow:visible;text-overflow:clip;white-space:normal;word-break:break-all}
+@media(max-width:850px){.bank-accounts{grid-template-columns:1fr;gap:10px}.bank-pair{gap:8px}.bank-row{font-size:9px}}
+@media print{.bank-info{box-shadow:none}}
+/* Bank settings — one principal account by default */
+.bank-settings-wrap{margin:18px 0;padding:16px;border:1px solid #e2e8f0;border-radius:14px;background:#fbfcfe}
+.bank-settings-wrap h2{margin:0 0 4px}
+.bank-settings-card{margin-top:12px;padding:14px;border:1px solid #dbe4ef;border-radius:12px;background:#fff}
+.bank-settings-title{font-weight:800;color:#174f8f;margin-bottom:10px;text-transform:uppercase;font-size:12px;letter-spacing:.45px}
+.bank-add-btn{margin-top:12px}
+.bank-accounts.single-bank{grid-template-columns:minmax(0,1fr);max-width:620px}
+.bank-accounts.single-bank .bank-card{max-width:100%}
+
+/* Datos bancarios: una cuenta principal y cuenta adicional opcional */
+.bank-settings-block{margin:18px 0;padding:16px;border:1px solid #dfe7f0;border-radius:12px;background:#f8fafc}
+.bank-settings-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.bank-settings-head h2{margin-bottom:4px}
+.bank-settings-card{padding:14px;border:1px solid #dce5ef;border-radius:10px;background:#fff;margin-top:10px}
+.bank-settings-label{font-size:12px;font-weight:800;letter-spacing:.55px;color:#174f8f;margin-bottom:10px}
+.bank-add-btn{margin-top:12px}
+.bank-remove-btn{padding:8px 11px;font-size:12px}
+.hidden-bank{display:none!important}
+.bank-accounts{grid-template-columns:1fr}
+.bank-accounts.has-secondary{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:850px){.bank-settings-head{flex-direction:column}.bank-accounts.has-secondary{grid-template-columns:1fr}}
+
+/* FINAL CLEANUP — compact client data and reliable optional bank account */
+.client-form-compact{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 14px}
+.client-form-compact .client-picker-wrap,.client-form-compact .client-name,.client-form-compact .client-address{grid-column:1/-1}
+.client-form-compact .client-picker-wrap .field{margin:0}
+.client-form-compact .field label{margin-bottom:4px;font-size:11px}
+.client-form-compact .field input,.client-form-compact .field select{min-height:40px;padding:9px 11px}
+.client-form-compact .client-name input{font-weight:600}
+@media(max-width:850px){.client-form-compact{grid-template-columns:1fr 1fr}.client-form-compact .client-picker-wrap,.client-form-compact .client-name,.client-form-compact .client-address{grid-column:1/-1}}
+@media(max-width:560px){.client-form-compact{grid-template-columns:1fr}}
+
+/* Keep the optional-account control visible and unmistakable. */
+.bank-settings-block .bank-add-btn{display:inline-flex!important;align-items:center;justify-content:center;margin-top:12px;min-height:40px;font-weight:700}
+.bank-settings-block .bank-add-btn.hidden-bank{display:none!important}
+.bank-settings-card.secondary-bank-card.hidden-bank{display:none!important}
+
+/* Image captions stay inside the concept row instead of touching the page outline. */
+.pdf-image-caption{display:block;max-width:36mm;line-height:1.15}
+
+/* FINAL PROFESSIONAL CLEANUP — stable 1.2 */
+.client-section .client-form-compact{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px 12px}
+.client-section .client-form-compact .client-picker-wrap,
+.client-section .client-form-compact .client-name,
+.client-section .client-form-compact .client-address{grid-column:1/-1}
+.client-section .client-form-compact .field{min-width:0}
+.client-section .client-form-compact .field input,
+.client-section .client-form-compact .field select{min-height:38px;padding:8px 10px}
+
+.bank-settings-block{margin:16px 0;padding:14px 16px;border:1px solid #dce5ef;border-radius:12px;background:#f8fafc}
+.bank-settings-card{padding:12px;border:1px solid #dce5ef;border-radius:10px;background:#fff;margin-top:9px}
+.bank-settings-card .form-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px}
+.bank-settings-card .field{min-width:0}
+.bank-settings-card input{min-width:0}
+.bank-settings-label{font-size:11px;font-weight:800;letter-spacing:.6px;color:#174f8f;margin-bottom:8px}
+.bank-add-btn{display:inline-flex!important;align-items:center;justify-content:center;min-height:40px;margin-top:10px;font-weight:700}
+.bank-add-btn.hidden-bank{display:none!important}
+.secondary-bank-card.hidden-bank{display:none!important}
+.bank-settings-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.bank-settings-head .bank-settings-label{margin:0}
+
+.doc-bottom-grid{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:18px;align-items:end;margin-top:10px}
+.doc-bottom-grid .bank-info{min-width:0}
+.doc-bottom-grid .doc-total{width:280px!important;min-width:0;margin:0!important}
+.pdf-image-caption{display:block;max-width:36mm;line-height:1.15;overflow-wrap:anywhere;word-break:break-word}
+.item-image .annotation{max-width:120px;overflow-wrap:anywhere;word-break:break-word;line-height:1.25}
+@media(max-width:850px){
+ .client-section .client-form-compact{grid-template-columns:1fr 1fr}
+ .bank-settings-card .form-grid{grid-template-columns:1fr}
+ .doc-bottom-grid{grid-template-columns:1fr}
+ .doc-bottom-grid .doc-total{width:100%!important}
+}
+@media(max-width:560px){.client-section .client-form-compact{grid-template-columns:1fr}}
+@media print{.doc-bottom-grid{grid-template-columns:minmax(0,1fr) 250px;gap:12px}.doc-bottom-grid .doc-total{width:250px!important}}
+
+
+/* FINAL 1.6 — descripción de conceptos legible y sin invasión de columnas */
+.items .item-desc-input{width:100%;min-height:58px;padding:9px;border:1px solid #cdd8e4;border-radius:7px;resize:vertical;line-height:1.35;font-family:Arial,Helvetica,sans-serif;white-space:pre-wrap;overflow-wrap:anywhere}
+.items .item-desc-input:focus{border-color:#0b5ca8;box-shadow:0 0 0 3px rgba(11,92,168,.08);outline:none}
+.doc-table td:nth-child(2){vertical-align:top;overflow:hidden;overflow-wrap:anywhere;word-break:break-word}
+.doc-item-image{display:inline-flex;flex-direction:column;vertical-align:top;width:44%;max-width:44%;margin:8px 2.5% 0 0;box-sizing:border-box;page-break-inside:avoid;break-inside:avoid}
+.doc-item-image img{display:block;width:100%!important;max-width:100%!important;height:auto!important;max-height:48mm!important;object-fit:contain;border:1px solid #e1e6ec;border-radius:6px;background:#fff}
+.doc-item-image .annotation{display:block;width:100%;max-width:100%;margin-top:4px;line-height:1.25;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;font-size:9px;color:#4d5a69;font-weight:600}
+.pdf-compact .doc-item-image{margin-top:6px}
+.pdf-compact .doc-item-image .annotation{font-size:8px}
+
+
+/* Stable 1.7 — compact description editor + emoji picker */
+.item-desc-wrap{position:relative;display:flex;align-items:flex-start;gap:7px;min-width:0}
+.item-desc-wrap .item-desc-input{flex:1;min-width:0;resize:vertical;line-height:1.35}
+.item-desc-tools{position:relative;flex:0 0 auto}
+@media(max-width:700px){.item-desc-wrap{display:block}.item-desc-tools{margin-top:6px}}
+
+/* stable-1.8 final text handling */
+.doc-table td:nth-child(2){white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;vertical-align:top}
+.doc-notes{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}
+.item-desc-tools{position:relative;display:flex;align-items:flex-start;gap:6px;flex-wrap:wrap;margin-top:5px}
+
+/* Stable professional client layout: compact and predictable. */
+.doc-client{padding:9px 12px!important;margin:10px 0!important;border-radius:8px!important;box-shadow:none!important}
+.doc-client-title{padding-bottom:6px!important;margin-bottom:7px!important;font-size:10px!important}
+.doc-client-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px 12px!important}
+.doc-client-main{grid-column:1/-1!important}
+.doc-client-address{grid-column:1/-1!important}
+.doc-client-item{min-height:24px!important;gap:1px!important}
+.doc-client-item span{font-size:8px!important;letter-spacing:.4px!important}
+.doc-client-item b{font-size:10.5px!important;line-height:1.25!important}
+@media(max-width:850px){.doc-client-grid{grid-template-columns:1fr!important}.doc-client-main,.doc-client-address{grid-column:auto!important}}
+
+/* VISUAL ONLY — datos de empresa y cliente, formato uniforme y compacto */
+.doc-company-data{display:flex;flex-direction:column;gap:0;margin-top:7px!important;line-height:1.3!important;font-size:11px!important;font-weight:600!important;color:#27486d!important}
+.doc-company-data>div{padding:2px 0 3px;border-bottom:1px solid #e3e9f0}
+.doc-company-data>div:last-child{border-bottom:0}
+.doc-client{background:linear-gradient(180deg,#f8fafc 0%,#f4f7fa 100%)!important;border:1px solid #d9e3ed!important;border-left:4px solid #f2a900!important}
+.doc-client-title{display:flex;align-items:center;padding:0 0 6px!important;margin:0 0 6px!important;border-bottom:1px solid #dce5ee!important;font-size:10px!important;letter-spacing:.7px!important;color:#174f8f!important}
+.doc-client-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:0 16px!important}
+.doc-client-item{min-width:0!important;min-height:0!important;padding:4px 0 5px!important;border-bottom:1px solid #e2e8ef!important;display:flex!important;flex-direction:column!important;gap:1px!important}
+.doc-client-item:nth-last-child(-n+3){border-bottom:0}
+.doc-client-item span{font-size:8px!important;line-height:1.1!important;letter-spacing:.55px!important;text-transform:uppercase!important;color:#718096!important;margin:0!important}
+.doc-client-item b{font-size:10.5px!important;line-height:1.25!important;font-weight:600!important;color:#172b45!important;overflow-wrap:anywhere!important;word-break:break-word!important}
+.doc-client-main{grid-column:1/-1!important}
+.doc-client-address{grid-column:1/-1!important}
+@media(max-width:850px){
+ .doc-company-data{font-size:9px!important}
+ .doc-client-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .doc-client-main,.doc-client-address{grid-column:1/-1!important}
+ .doc-client-item:nth-last-child(-n+3){border-bottom:1px solid #e2e8ef!important}
+}
+@media(max-width:560px){
+ .doc-client-grid{grid-template-columns:1fr!important}
+ .doc-client-main,.doc-client-address{grid-column:auto!important}
+ .doc-client-item:last-child{border-bottom:0!important}
+}
+
+
+/* VISUAL FINAL — Datos de empresa y cliente uniformes, compactos y equilibrados. */
+.doc-company-data{display:flex!important;flex-direction:column!important;gap:0!important;margin-top:6px!important;line-height:1.25!important;font-size:10.5px!important;font-weight:600!important;color:#27486d!important}
+.doc-company-data>div{padding:3px 0!important;border-bottom:1px solid #e3e9f0!important;min-height:16px!important;display:flex!important;align-items:center!important}
+.doc-company-data>div:first-child{font-size:11.5px!important;font-weight:700!important;color:#174f8f!important}
+.doc-company-data>div:last-child{border-bottom:0!important}
+.doc-client{padding:11px 14px!important;margin:10px 0!important;background:linear-gradient(180deg,#f8fafc 0%,#f4f7fa 100%)!important;border:1px solid #d9e3ed!important;border-left:4px solid #f2a900!important;border-radius:9px!important;box-shadow:none!important}
+.doc-client-title{display:flex!important;align-items:center!important;padding:0 0 6px!important;margin:0 0 3px!important;border-bottom:1px solid #dce5ee!important;font-size:10px!important;letter-spacing:.7px!important;color:#174f8f!important}
+.doc-client-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:0 16px!important}
+.doc-client-item{min-width:0!important;min-height:0!important;padding:5px 0 6px!important;border-bottom:1px solid #e2e8ef!important;display:flex!important;flex-direction:column!important;gap:1px!important}
+.doc-client-item span{font-size:8px!important;line-height:1.1!important;letter-spacing:.55px!important;text-transform:uppercase!important;color:#718096!important;margin:0!important}
+.doc-client-item b{font-size:10.5px!important;line-height:1.25!important;font-weight:600!important;color:#172b45!important;overflow-wrap:anywhere!important;word-break:break-word!important}
+.doc-client-main{grid-column:span 2!important}
+.doc-client-address{grid-column:1/-1!important}
+.doc-client-item:nth-child(3){border-bottom:1px solid #e2e8ef!important}
+.doc-client-item:last-child{border-bottom:0!important}
+@media(max-width:700px){.doc-client-grid{grid-template-columns:1fr!important}.doc-client-main,.doc-client-address{grid-column:1!important}.doc-company-data>div{padding:3px 0!important}}
+
+/* V23.2 — SOLO VISUAL: datos del cliente en una sola columna */
+.doc-client-grid{grid-template-columns:1fr!important;gap:0!important}
+.doc-client-item,.doc-client-main,.doc-client-address{grid-column:1!important;width:100%!important}
+.doc-client-item{display:flex!important;flex-direction:column!important}
+@media(max-width:850px){.doc-client-grid{grid-template-columns:1fr!important}}
+
+/* V23.2 — Ajuste visual: datos del cliente compactos, sin cambiar funciones */
+.client-form-grid.client-form-compact{gap:8px 12px}
+.client-form-grid.client-form-compact .field{gap:3px}
+.client-form-grid.client-form-compact .field label{font-size:11px;line-height:1.1}
+.client-form-grid.client-form-compact .field input{min-height:34px;height:34px;padding:7px 10px;font-size:13px}
+.client-form-grid.client-form-compact .client-picker-wrap{margin:0}
+.client-form-grid.client-form-compact .client-picker-wrap .field input{min-height:34px;height:34px}
+.client-section{padding:16px}
+.client-section-title{margin-bottom:10px}
+.client-section-title h2{font-size:18px;margin-bottom:1px}
+.client-section-title .muted{font-size:11px}
+.client-kicker{font-size:9px}
+@media(max-width:850px){
+ .client-section{padding:14px}
+ .client-form-grid.client-form-compact{gap:7px 10px}
+}
+
+/* V23.2 — SOLO VISUAL: cliente vertical y muy compacto */
+.doc-client{padding:7px 10px!important;margin:7px 0!important}
+.doc-client-title{padding:0 0 4px!important;margin:0 0 2px!important;font-size:9px!important}
+.doc-client-grid{grid-template-columns:1fr!important;gap:0!important}
+.doc-client-item,.doc-client-main,.doc-client-address{grid-column:1!important;width:100%!important}
+.doc-client-item{display:grid!important;grid-template-columns:125px minmax(0,1fr)!important;align-items:baseline!important;column-gap:7px!important;min-height:0!important;padding:2px 0!important;border-bottom:1px solid #e8edf2!important}
+.doc-client-item span{font-size:7.5px!important;line-height:1.1!important;letter-spacing:.35px!important;margin:0!important}
+.doc-client-item b{font-size:9.5px!important;line-height:1.15!important;font-weight:600!important;overflow-wrap:anywhere!important;word-break:break-word!important}
+.doc-client-address{border-bottom:0!important}
+@media(max-width:560px){.doc-client-item{grid-template-columns:100px minmax(0,1fr)!important;column-gap:6px!important}.doc-client-item span{font-size:7px!important}.doc-client-item b{font-size:9px!important}}
+
+/* V23.2 FINAL: datos del cliente compactos, una fila por dato. */
+.doc-client{padding:7px 10px!important;margin:7px 0!important}
+.doc-client-title{padding:0 0 3px!important;margin:0 0 1px!important;font-size:9px!important;line-height:1.1!important}
+.doc-client-grid{display:grid!important;grid-template-columns:1fr!important;gap:0!important}
+.doc-client-item,.doc-client-main,.doc-client-address{grid-column:1!important;width:100%!important;min-height:0!important;margin:0!important;padding:2px 0!important;display:grid!important;grid-template-columns:115px minmax(0,1fr)!important;align-items:baseline!important;column-gap:6px!important;border-bottom:1px solid #e8edf2!important}
+.doc-client-item span{font-size:7.2px!important;line-height:1.05!important;letter-spacing:.3px!important;margin:0!important}
+.doc-client-item b{font-size:9.2px!important;line-height:1.12!important;font-weight:600!important;overflow-wrap:anywhere!important;word-break:break-word!important}
+.doc-client-address{border-bottom:0!important}
+@media(max-width:560px){.doc-client-item,.doc-client-main,.doc-client-address{grid-template-columns:92px minmax(0,1fr)!important;column-gap:5px!important}.doc-client-item span{font-size:6.8px!important}.doc-client-item b{font-size:8.8px!important}}
+
+/* V23.2 — AJUSTE VISUAL SOLICITADO: datos del cliente más compactos, sin alterar estructura ni funciones */
+.doc-client{padding:5px 9px!important;margin:6px 0!important}
+.doc-client-title{padding:0 0 3px!important;margin:0 0 1px!important;font-size:8.5px!important;line-height:1.05!important;font-weight:700!important}
+.doc-client-grid{grid-template-columns:1fr!important;gap:0!important}
+.doc-client-item,.doc-client-main,.doc-client-address{grid-column:1!important;width:100%!important;min-height:0!important;margin:0!important;padding:1.5px 0!important;display:grid!important;grid-template-columns:112px minmax(0,1fr)!important;align-items:baseline!important;column-gap:5px!important}
+.doc-client-item span{font-size:7px!important;line-height:1.05!important;letter-spacing:.25px!important;font-weight:700!important;color:#5f6f82!important}
+.doc-client-item b{font-size:9px!important;line-height:1.08!important;font-weight:600!important;overflow-wrap:anywhere!important;word-break:break-word!important}
+.doc-client-address{border-bottom:0!important}
+@media(max-width:560px){.doc-client-item,.doc-client-main,.doc-client-address{grid-template-columns:90px minmax(0,1fr)!important;column-gap:5px!important}.doc-client-item span{font-size:6.7px!important}.doc-client-item b{font-size:8.6px!important}}
+
+/* AJUSTE VISUAL: galería de imágenes del artículo, máximo 3 por fila.
+ El texto/descripción queda fuera de la cuadrícula para que nunca ocupe
+ una de las posiciones destinadas a las imágenes. */
+.doc-item-images{
+ display:grid!important;
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:8px!important;
+ width:100%!important;
+ margin-top:8px!important;
+ align-items:start!important;
+}
+.doc-item-images .doc-item-image{
+ display:flex!important;
+ flex-direction:column!important;
+ width:100%!important;
+ max-width:100%!important;
+ margin:0!important;
+ padding:5px!important;
+ box-sizing:border-box!important;
+ vertical-align:top!important;
+ min-width:0!important;
+}
+.doc-item-images .doc-item-image img{
+ display:block!important;
+ width:100%!important;
+ max-width:100%!important;
+ height:auto!important;
+ max-height:48mm!important;
+ object-fit:contain!important;
+}
+.doc-item-images .doc-item-image .annotation{
+ display:block!important;
+ width:100%!important;
+ max-width:100%!important;
+ margin-top:4px!important;
+ line-height:1.25!important;
+ white-space:pre-wrap!important;
+ overflow-wrap:anywhere!important;
+ word-break:break-word!important;
+}
+
+/* Plantillas visuales SK House Construction */
+:root{--template-accent:#1f5f8b;--template-soft:#eaf3f8;--template-ink:#17324d}
+.sidebar{border-right-color:var(--template-accent)}
+.nav.active{background:var(--template-soft);color:var(--template-accent);border-left-color:var(--template-accent)}
+.btn.primary{background:var(--template-accent);border-color:var(--template-accent)}
+.section h1,.section h2,.section h3{color:var(--template-ink)}
+.card{border-top-color:var(--template-accent)}
+.templates-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:18px}.template-install{white-space:nowrap}.template-notice{padding:13px 15px;border:1px solid #d9e5ed;background:var(--template-soft);border-radius:12px;margin-bottom:22px;color:var(--template-ink)}
+.template-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.template-card{background:#fff;border:1px solid #dfe5ea;border-radius:16px;padding:12px;box-shadow:0 5px 18px rgba(0,0,0,.06);transition:.18s ease}.template-card:hover{transform:translateY(-2px);box-shadow:0 9px 24px rgba(0,0,0,.09)}.template-card.selected{border:2px solid var(--card-accent);padding:11px}.template-preview{height:145px;border-radius:11px;background:var(--card-soft);padding:13px;box-sizing:border-box;overflow:hidden}.mini-head{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid var(--card-accent);padding-bottom:8px}.mini-logo{display:inline-flex;width:25px;height:25px;border-radius:6px;align-items:center;justify-content:center;background:var(--card-accent);color:#fff;font:bold 9px Arial}.mini-head span:last-child{width:42%;height:7px;border-radius:5px;background:var(--card-ink);opacity:.7}.mini-title{font:bold 10px Arial;color:var(--card-ink);margin-top:11px}.mini-lines{display:grid;gap:5px;margin-top:8px}.mini-lines i{display:block;height:4px;border-radius:4px;background:#fff}.mini-lines i:nth-child(1){width:70%}.mini-lines i:nth-child(2){width:92%}.mini-lines i:nth-child(3){width:55%}.mini-table{display:grid;grid-template-columns:2fr 1fr 1fr;gap:4px;margin-top:10px}.mini-table b{height:7px;background:#fff;border-radius:2px}.mini-table b:first-child{background:var(--card-accent)}.mini-total{margin:9px 0 0 auto;width:35%;height:9px;border-radius:3px;background:var(--card-accent)}.template-info{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:11px 2px 8px}.template-info h3{margin:0;font-size:16px}.template-info p{margin:3px 0 0;color:#6b7680;font-size:12px}.template-active{font-size:9px;font-weight:800;letter-spacing:.08em;color:var(--card-accent);white-space:nowrap}.template-actions{display:flex;gap:8px}.template-actions .btn{flex:1;justify-content:center;font-size:12px;padding:9px 8px}
+@media(max-width:1000px){.template-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:650px){.templates-head{flex-direction:column}.template-install{width:100%;justify-content:center}.template-grid{grid-template-columns:1fr}}
+
+/* =========================================================
+ SK HOUSE CONSTRUCTION — LAYOUTS DE PLANTILLA V2
+ Solo modifica presentación visual de documentos.
+ ========================================================= */
+.doc-shell{width:100%;box-sizing:border-box}
+.doc-shell.doc-layout-premium .doc-head{border-radius:2px!important;border-bottom:3px solid var(--template-accent)!important;background:linear-gradient(135deg,#fff,var(--template-soft))!important}
+.doc-shell.doc-layout-dark .doc-head{background:var(--template-accent)!important;color:#fff!important;border-radius:0!important}
+.doc-shell.doc-layout-dark .doc-company,.doc-shell.doc-layout-dark .doc-company-data,.doc-shell.doc-layout-dark .doc-meta{color:#fff!important}
+.doc-shell.doc-layout-band .doc-head{border-left:8px solid var(--template-accent)!important;border-radius:0 12px 12px 0!important}
+.doc-shell.doc-layout-industrial .doc-head{background:linear-gradient(135deg,#252c33 0%,#414b55 100%)!important;color:#fff!important;border-radius:3px!important}
+.doc-shell.doc-layout-industrial .doc-company,.doc-shell.doc-layout-industrial .doc-company-data,.doc-shell.doc-layout-industrial .doc-meta{color:#fff!important}
+.doc-shell.doc-layout-minimal .doc-head{background:#fff!important;border-bottom:1px solid #cfd6dd!important;border-radius:0!important;padding:8px 4px!important}
+.doc-shell.doc-layout-modern .doc-head{background:linear-gradient(90deg,var(--template-soft),#fff)!important;border-radius:18px!important;border:1px solid #dceaf0!important}
+.doc-shell.doc-layout-editorial .doc-head{background:#fff!important;border-top:6px solid var(--template-accent)!important;border-radius:0!important;padding-top:14px!important}
+.doc-shell.doc-layout-executive .doc-head{background:#fff!important;border:1px solid #e2d8dc!important;border-left:7px solid var(--template-accent)!important;border-radius:3px!important}
+.doc-shell.doc-layout-split .doc-head{background:linear-gradient(90deg,var(--template-accent) 0 36%,#fff 36%)!important;border-radius:0!important}
+.doc-shell.doc-layout-grid .doc-head{background:#f5f6f7!important;border:1px solid #bfc5cb!important;border-radius:0!important}
+.doc-shell.doc-layout-soft .doc-head{background:var(--template-soft)!important;border:0!important;border-radius:18px!important}
+.doc-shell.doc-layout-classic .doc-table th{background:var(--template-accent)!important}
+.doc-shell.doc-layout-premium .doc-table th{background:#202b35!important;color:#fff!important}
+.doc-shell.doc-layout-dark .doc-table th,.doc-shell.doc-layout-industrial .doc-table th{background:#20252a!important;color:#fff!important}
+.doc-shell.doc-layout-minimal .doc-table th,.doc-shell.doc-layout-soft .doc-table th{background:#f3f5f7!important;color:var(--template-ink)!important;border-bottom:2px solid var(--template-accent)!important}
+.doc-shell.doc-layout-band .doc-table th{background:var(--template-accent)!important}
+.doc-shell.doc-layout-modern .doc-table th{background:var(--template-accent)!important;border-radius:6px 6px 0 0!important}
+.doc-shell.doc-layout-editorial .doc-table th{background:#fff!important;color:var(--template-ink)!important;border-bottom:2px solid var(--template-accent)!important}
+.doc-shell.doc-layout-executive .doc-table th{background:var(--template-accent)!important}
+.doc-shell.doc-layout-split .doc-table th{background:var(--template-accent)!important}
+.doc-shell.doc-layout-grid .doc-table th{background:#343b43!important}
+.doc-shell.doc-layout-premium .doc-client{border-left:0!important;border-top:2px solid var(--template-accent)!important;border-radius:2px!important}
+.doc-shell.doc-layout-dark .doc-client{border-left:4px solid var(--template-accent)!important;background:#f5f6f7!important}
+.doc-shell.doc-layout-minimal .doc-client{border:0!important;border-top:1px solid #d9dfe5!important;border-bottom:1px solid #d9dfe5!important;background:#fff!important;border-radius:0!important}
+.doc-shell.doc-layout-industrial .doc-client{border-left:5px solid var(--template-accent)!important;border-radius:2px!important}
+.doc-shell.doc-layout-editorial .doc-client{background:#fff!important;border:0!important;border-top:1px solid #ddd!important;border-bottom:1px solid #ddd!important;border-radius:0!important}
+.doc-shell.doc-layout-grid .doc-client{border:1px solid #aeb7c0!important;border-radius:0!important}
+.doc-shell.doc-layout-soft .doc-client{border:0!important;background:var(--template-soft)!important;border-radius:16px!important}
+
+/* Different thumbnail composition for the template gallery */
+.template-preview.layout-dark,.template-preview.layout-industrial{background:linear-gradient(135deg,var(--card-ink),var(--card-accent))!important}
+.template-preview.layout-dark .mini-head,.template-preview.layout-industrial .mini-head{border-color:#fff!important}
+.template-preview.layout-dark .mini-logo,.template-preview.layout-industrial .mini-logo{background:#fff!important;color:var(--card-ink)!important}
+.template-preview.layout-band{border-left:9px solid var(--card-accent)!important}
+.template-preview.layout-minimal{background:#fff!important;border:1px solid #d9dfe5}
+.template-preview.layout-minimal .mini-head{border-bottom:1px solid #aeb7c0!important}
+.template-preview.layout-editorial{border-top:8px solid var(--card-accent)!important;border-radius:4px!important}
+.template-preview.layout-grid{border:2px solid var(--card-accent)!important;border-radius:2px!important}
+.template-preview.layout-soft{border-radius:20px!important}
+.template-preview.layout-split{background:linear-gradient(90deg,var(--card-accent) 0 35%,var(--card-soft) 35%)!important}
+.template-preview.layout-split .mini-logo{background:#fff!important;color:var(--card-accent)!important}
+/* Scanner y dictado */
+.tool-modal{max-width:820px}.scanner-preview{width:100%;max-height:48vh;object-fit:contain;background:#111;border-radius:12px;display:block}.scanner-video{width:100%;max-height:48vh;object-fit:contain;background:#111;border-radius:12px}.scanner-status{min-height:22px;margin-top:10px}.scanner-text{min-height:180px;width:100%;resize:vertical}.mic-listening{animation:skMicPulse 1s infinite}@keyframes skMicPulse{50%{transform:scale(1.04);box-shadow:0 0 0 5px rgba(23,79,143,.15)}}
+@media(max-width:850px){.top-actions .utility-btn{flex:1 1 30%}}
+
+/* Emoji compatibility: preserve Arial for normal text while explicitly providing emoji-capable fallbacks. */
+button,.btn,.nav,.actions button,.quick button,.utility-btn,.sidebar-toggle{font-family:Arial,"Segoe UI Emoji","Segoe UI Symbol","Apple Color Emoji","Noto Color Emoji",sans-serif;}

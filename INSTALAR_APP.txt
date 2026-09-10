@@ -1,19 +1,14 @@
-SK HOUSE CONSTRUCTION — APP INSTALABLE
+SK House Construction — Instalación
 
-Esta versión conserva la aplicación web y agrega soporte PWA para instalarla como aplicación en Android, Windows, macOS, Linux y iPhone/iPad (según navegador).
+1. Publica todos los archivos de esta carpeta en tu hosting.
+2. Abre la aplicación desde el dominio publicado (HTTPS recomendado).
+3. Para instalarla como aplicación, usa la opción Instalar/Agregar a pantalla de inicio del navegador.
+4. Para usar la nube, ejecuta SUPABASE_SETUP.sql en Supabase y después inicia sesión con la misma cuenta en todos tus dispositivos.
 
-ANDROID (Chrome):
-1. Abre la dirección HTTPS de la aplicación.
-2. Espera unos segundos.
-3. En Chrome toca ⋮ > "Instalar aplicación" o "Agregar a pantalla principal".
-4. Confirma. La aplicación aparecerá como SK House Construction.
+Importante:
+- La conexión utiliza la URL y la clave pública de Supabase.
+- No compartas una contraseña de Supabase.
+- La aplicación conserva una cuenta bancaria principal y permite agregar una cuenta adicional desde Configuración.
+- El número completo de tarjeta se conserva y se muestra completo en los documentos.
 
-WINDOWS (Chrome/Edge):
-1. Abre la dirección HTTPS.
-2. Busca el icono de instalar en la barra de direcciones, o usa el menú del navegador > "Instalar SK House Construction".
-3. Confirma.
-
-IMPORTANTE:
-- Para que el navegador permita la instalación PWA, la aplicación debe publicarse mediante HTTPS (tu dominio workers.dev funciona con HTTPS).
-- La base de datos de Supabase sigue funcionando en línea; instalar la app no elimina la necesidad de Internet para sincronizar datos.
-- No compartas la clave service_role de Supabase. En la aplicación debe utilizarse únicamente la clave pública/publishable correspondiente y políticas RLS correctamente configuradas.
+Versión interna: stable-2.4.2
