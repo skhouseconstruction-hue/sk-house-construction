@@ -1,8 +1,0 @@
-SK House Construction — V15
-
-Mejora del generador de PDF:
-- Cotización y nota de venta en una sola página A4 cuando el contenido cabe en el formato.
-- Encabezado, cliente, conceptos, notas, bancos y totales con espaciado compacto.
-- Se mantienen logo, imágenes de conceptos, fechas de inicio/vencimiento e interruptor de IVA.
-- Se conserva la descarga directa del PDF y la compatibilidad con compartir.
-- Nueva caché PWA V15 para evitar cargar la versión anterior.
