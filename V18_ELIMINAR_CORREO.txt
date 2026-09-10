@@ -1,7 +1,0 @@
-SK House Construction APP V18 - Corrección de correo
-
-Se corrigió el envío por correo de documentos PDF:
-- En dispositivos compatibles con Web Share, el PDF se comparte como archivo adjunto.
-- En escritorio, el PDF se genera y descarga automáticamente antes de abrir el correo.
-- Se conserva el destinatario, asunto y mensaje del cliente.
-- No se modificaron las demás funciones de la V18.
