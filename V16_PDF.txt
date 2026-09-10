@@ -1,2 +1,0 @@
-V17 – Corrección de datos bancarios
-La cotización/PDF conserva y muestra CUENTA 1 y CUENTA 2. Los datos bancarios actuales de Configuración se usan como respaldo cuando un documento antiguo no contiene la segunda cuenta.
