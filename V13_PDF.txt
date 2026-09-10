@@ -1,4 +1,0 @@
-V13 - PDF DEFINITIVO
-La generación de PDF ya no depende de capturar visualmente la página con html2canvas.
-Se genera el PDF directamente con jsPDF, con texto, tabla, fechas, datos del cliente, totales, notas y datos bancarios.
-También se actualizó el Service Worker a v13 para evitar que el navegador siga usando una versión anterior en caché.
