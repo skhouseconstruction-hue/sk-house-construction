@@ -333,7 +333,10 @@ function resetLocalState(){
  Object.assign(state,fresh);
  normalizeStateData();
 }
+let cloudSyncInFlight=null;
 async function syncCloudIntoState(){
+ if(cloudSyncInFlight)return cloudSyncInFlight;
+ cloudSyncInFlight=(async()=>{
  try{
  const cloud=window.SKCloud?await window.SKCloud.loadState():null;
  const user=window.SKCloud?await window.SKCloud.session():null;
@@ -379,10 +382,14 @@ async function syncCloudIntoState(){
  }
  render(); updateCloudStatus();
  }catch(e){
- cloudSyncReady=false;console.error(e);
- toast('No se pudo sincronizar con la nube. Tus datos locales permanecen intactos.');
+ cloudSyncReady=false;
+ console.error('Cloud sync:',e);
+ const msg=String(e?.message||e?.details||e?.hint||e?.code||'');
+ toast(msg ? `No se pudo sincronizar con la nube: ${msg}` : 'No se pudo sincronizar con la nube. Tus datos locales permanecen intactos.');
  updateCloudStatus();
  }
+ })();
+ try{return await cloudSyncInFlight;}finally{cloudSyncInFlight=null;}
 }
 function buildCloudComparable(s){
  try{
@@ -997,7 +1004,7 @@ function settings(c){
  <input type="hidden" id="s_secondaryBankEnabled" value="${secondary?'1':'0'}">
  <div id="secondaryBankCard" class="bank-settings-card secondary-bank-card${secondary?'':' hidden-bank'}"><div class="bank-settings-head"><div class="bank-settings-label">CUENTA ADICIONAL</div><button type="button" class="btn danger bank-remove-btn" onclick="toggleSecondaryBankFields(false)">Quitar cuenta</button></div><div class="form-grid">${fields([['bank2','Banco'],['holder2','Titular'],['account2','Cuenta / CLABE'],['card2','Número de tarjeta']])}</div></div>
  <button id="addSecondaryBankBtn" type="button" class="btn outline bank-add-btn${secondary?' hidden-bank':''}" onclick="toggleSecondaryBankFields(true)">＋ Agregar otra cuenta bancaria</button></div>
- <div class="form-grid"><div class="field"><label>IVA (%)</label><input id="s_iva" inputmode="decimal" value="${state.settings.iva}"></div><div class="field full"><label>Notas predeterminadas</label><textarea id="s_notes" rows="3">${esc(state.settings.notes||'')}</textarea></div></div><div class="actions"><button class="btn primary" onclick="saveSettings()">Guardar configuración</button><button class="btn outline" onclick="backup()">Respaldar datos</button><label class="btn outline">Restaurar<input type="file" accept=".json" hidden onchange="restore(this.files[0])"></label></div></div><div class="section"><h2> Base de datos en línea</h2><p class="muted">Conecta esta aplicación a Supabase para que clientes, productos, cotizaciones, notas y configuración estén disponibles desde cualquier dispositivo. Usa la misma cuenta de acceso en todos tus equipos.</p><div class="form-grid"><div class="field full"><label>Supabase Project URL</label><input id="cloud_url" value="${esc(cfg.url||'')}" placeholder="https://tu-proyecto.supabase.co"></div><div class="field full"><label>Supabase Publishable / Anon Key</label><input id="cloud_key" value="${esc(cfg.key||'')}" placeholder="sb_publishable_..."></div><div class="field"><label>Correo de acceso</label><input id="cloud_email" type="email" autocomplete="username" value="${esc(window.SKCloud?.getLastLoginEmail?.()||'')}" placeholder="tu-correo@ejemplo.com"></div><div class="field"><label>Contraseña</label><input id="cloud_pass" type="password" autocomplete="current-password" placeholder="Mínimo 6 caracteres"><small class="muted">La sesión se conserva automáticamente. Por seguridad, la contraseña no se guarda en la aplicación.</small></div></div><div class="actions"><button class="btn outline" onclick="cloudConfigure()">Guardar conexión</button><button class="btn primary" onclick="cloudLogin()">Iniciar sesión</button><button class="btn outline" onclick="cloudSignup()">Crear cuenta</button><button class="btn danger" onclick="cloudLogout()">Cerrar sesión</button></div><div id="cloudStatus" class="small" style="margin-top:10px">Comprobando conexión…</div></div><div class="section"><h2>Logotipo</h2><img src="logo.jpg" class="logo-preview"><p class="muted small">El logotipo oficial está integrado en la aplicación y en los documentos.</p></div>`
+ <div class="form-grid"><div class="field"><label>IVA (%)</label><input id="s_iva" inputmode="decimal" value="${state.settings.iva}"></div><div class="field full"><label>Notas predeterminadas</label><textarea id="s_notes" rows="3">${esc(state.settings.notes||'')}</textarea></div></div><div class="actions"><button class="btn primary" onclick="saveSettings()">Guardar configuración</button><button class="btn outline" onclick="backup()">Respaldar datos</button><label class="btn outline">Restaurar<input type="file" accept=".json" hidden onchange="restore(this.files[0])"></label></div></div><div class="section"><h2>Actualizar aplicación</h2><p class="muted">Cuando publiquemos una nueva versión, usa este botón para descargarla y reiniciar la aplicación. Tus datos y tu sesión no se borran.</p><div class="actions"><button class="btn primary" onclick="updateApplication()">Actualizar aplicación</button></div></div><div class="section"><h2> Base de datos en línea</h2><p class="muted">Conecta esta aplicación a Supabase para que clientes, productos, cotizaciones, notas y configuración estén disponibles desde cualquier dispositivo. Usa la misma cuenta de acceso en todos tus equipos.</p><div class="form-grid"><div class="field full"><label>Supabase Project URL</label><input id="cloud_url" value="${esc(cfg.url||'')}" placeholder="https://tu-proyecto.supabase.co"></div><div class="field full"><label>Supabase Publishable / Anon Key</label><input id="cloud_key" value="${esc(cfg.key||'')}" placeholder="sb_publishable_..."></div><div class="field"><label>Correo de acceso</label><input id="cloud_email" type="email" autocomplete="username" value="${esc(window.SKCloud?.getLastLoginEmail?.()||'')}" placeholder="tu-correo@ejemplo.com"></div><div class="field"><label>Contraseña</label><input id="cloud_pass" type="password" autocomplete="current-password" placeholder="Mínimo 6 caracteres"><small class="muted">La sesión se conserva automáticamente. Por seguridad, la contraseña no se guarda en la aplicación.</small></div></div><div class="actions"><button class="btn outline" onclick="cloudConfigure()">Guardar conexión</button><button class="btn primary" onclick="cloudLogin()">Iniciar sesión</button><button class="btn outline" onclick="cloudSignup()">Crear cuenta</button><button class="btn danger" onclick="cloudLogout()">Cerrar sesión</button></div><div id="cloudStatus" class="small" style="margin-top:10px">Comprobando conexión…</div></div><div class="section"><h2>Logotipo</h2><img src="logo.jpg" class="logo-preview"><p class="muted small">El logotipo oficial está integrado en la aplicación y en los documentos.</p></div>`
  setTimeout(()=>updateCloudStatus(),0);
 }
 function toggleSecondaryBankFields(show){
@@ -1029,6 +1036,21 @@ function saveSettings(){
  normalizeStateData();save();render();toast('Configuración guardada')
 }
 function backup(){const data={version:APP_VERSION,meta:{...(state._meta||{}),cloudSyncPending:Boolean(state._meta?.cloudSyncPending)},settings:state.settings,clients:state.clients,products:state.products,documents:state.documents,toolLists:state.toolLists};const b=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='SK_House_Construction_respaldo.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),30000)}
+async function updateApplication(){
+ if(!navigator.onLine){toast('Conéctate a Internet para actualizar la aplicación');return;}
+ if(!confirm('¿Actualizar SK House Construction ahora? Tus clientes, productos, documentos y configuración permanecerán intactos.'))return;
+ toast('Buscando la versión más reciente…');
+ try{
+  const registrations=await navigator.serviceWorker?.getRegistrations?.()||[];
+  await Promise.all(registrations.map(r=>r.update().catch(()=>{})));
+  if(window.caches?.keys){
+   const keys=await caches.keys();
+   await Promise.all(keys.filter(k=>k.startsWith('sk-house-construction-')).map(k=>caches.delete(k)));
+  }
+ }catch(e){console.warn('App update:',e);}
+ toast('Aplicación actualizada. Reiniciando…');
+ setTimeout(()=>location.reload(),350);
+}
 function restore(file){
  if(!file)return;
  const r=new FileReader();
@@ -1926,6 +1948,7 @@ window.archive=archive;window.templates=templates;window.selectTemplate=selectTe
 window.returnToDocument=returnToDocument;
 
 window.cloudConfigure=cloudConfigure;window.cloudLogin=cloudLogin;window.cloudSignup=cloudSignup;window.cloudLogout=cloudLogout;window.syncCloudIntoState=syncCloudIntoState;window.updateCloudStatus=updateCloudStatus;
+window.updateApplication=updateApplication;
 
 window.sharePDF=shareDoc;window.shareToolList=shareToolList;window.emailToolList=emailToolList;window.tools=tools;window.newToolList=newToolList;window.editToolList=editToolList;window.dltTool=dltTool;window.saveToolList=saveToolList;window.previewToolList=previewToolList;window.removeImage=removeImage;window.editImageText=editImageText;
 

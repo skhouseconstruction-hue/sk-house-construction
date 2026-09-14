@@ -138,7 +138,7 @@
  const stamp=new Date().toISOString();
  const res=await client.from('company_state').update({payload:merged,updated_at:stamp}).eq('user_id',s.user.id).eq('updated_at',expected).select('payload,updated_at').maybeSingle();
  if(res.error)throw res.error;
- if(res.data)return {ok:true,payload:res.data.payload,updatedAt:res.data.updated_at};
+ if(res.data)return {ok:true,payload:normalizePayload(res.data.payload)||payload,updatedAt:res.data.updated_at};
  expected=null; continue;
  }
  }
@@ -146,7 +146,7 @@
  if(expected){
  const res=await client.from('company_state').update({payload,updated_at:stamp}).eq('user_id',s.user.id).eq('updated_at',expected).select('payload,updated_at').maybeSingle();
  if(res.error)throw res.error;
- if(res.data)return {ok:true,payload:res.data.payload,updatedAt:res.data.updated_at};
+ if(res.data)return {ok:true,payload:normalizePayload(res.data.payload)||payload,updatedAt:res.data.updated_at};
  expected=null; continue;
  }
  const res=await client.from('company_state').insert({user_id:s.user.id,payload,updated_at:stamp}).select('payload,updated_at').maybeSingle();
@@ -154,15 +154,22 @@
  if(res.error.code==='23505'){expected=null;continue;}
  throw res.error;
  }
- return {ok:true,payload:res.data?.payload||payload,updatedAt:res.data?.updated_at||stamp};
+ return {ok:true,payload:normalizePayload(res.data?.payload)||payload,updatedAt:res.data?.updated_at||stamp};
  }
  throw new Error('CLOUD_CONFLICT_RETRY_EXHAUSTED');
+ }
+ function normalizePayload(raw){
+ if(raw==null)return null;
+ if(typeof raw==='string'){
+ try{raw=JSON.parse(raw);}catch(_e){return null;}
+ }
+ return raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:null;
  }
  async function loadState(){
  const s=await session(); if(!s) return null;
  const {data,error}=await client.from('company_state').select('payload,updated_at').eq('user_id',s.user.id).maybeSingle();
  if(error) throw error;
- return data?{payload:data.payload||null,updatedAt:data.updated_at||null}:null;
+ return data?{payload:normalizePayload(data.payload),updatedAt:data.updated_at||null}:null;
  }
  window.SKCloud={
  getConfig:()=>config||{url:'',key:''},

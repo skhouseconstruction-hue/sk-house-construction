@@ -540,3 +540,100 @@ body,button,input,textarea,select{font-family:Arial,Helvetica,sans-serif}
 
 /* Emoji compatibility: preserve Arial for normal text while explicitly providing emoji-capable fallbacks. */
 button,.btn,.nav,.actions button,.quick button,.utility-btn,.sidebar-toggle{font-family:Arial,"Segoe UI Emoji","Segoe UI Symbol","Apple Color Emoji","Noto Color Emoji",sans-serif;}
+
+/* Responsive visual refinement — no cambia lógica ni datos */
+@media (max-width:850px){
+  .topbar{
+    display:grid;
+    grid-template-columns:auto minmax(0,1fr);
+    grid-template-rows:auto auto;
+    column-gap:10px;
+    row-gap:10px;
+    padding:10px 12px 12px;
+    flex-direction:initial;
+    align-items:center;
+  }
+  .sidebar-toggle{
+    position:static;
+    grid-column:1;
+    grid-row:1;
+    width:auto;
+    min-width:72px;
+    min-height:42px;
+    padding:9px 12px;
+    z-index:2;
+  }
+  .mobile-brand{
+    grid-column:2;
+    grid-row:1;
+    min-width:0;
+    width:100%;
+    padding-left:0;
+    justify-content:flex-start;
+    gap:8px;
+    overflow:hidden;
+  }
+  .mobile-brand img{width:44px;height:44px;flex:0 0 44px}
+  .mobile-brand strong{font-size:16px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .top-actions{
+    grid-column:1/-1;
+    grid-row:2;
+    width:100%;
+    margin:0;
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+  }
+  .top-actions .btn{min-width:0;width:100%;padding:10px 8px;font-size:13px;line-height:1.15}
+  .top-actions .back-global{flex:initial}
+  .top-actions .utility-btn{flex:initial}
+  .global-search{margin-top:8px;margin-bottom:10px}
+  .content{padding:12px 10px 30px}
+  .section{padding:15px;margin-bottom:12px}
+  .cards{gap:10px}
+  .card{padding:14px}
+  .metric{font-size:25px}
+  .quick{gap:9px}
+  .quick button{padding:15px 10px;min-height:64px}
+}
+
+@media (max-width:560px){
+  .topbar{padding-left:10px;padding-right:10px}
+  .sidebar-toggle{min-width:68px;padding:9px 10px;font-size:14px}
+  .mobile-brand img{width:40px;height:40px;flex-basis:40px}
+  .mobile-brand strong{font-size:15px}
+  .top-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .top-actions .btn{font-size:12px;padding:9px 6px;min-height:42px}
+  .global-search{padding:0 8px}
+  .global-search input{font-size:16px;padding:12px}
+  .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .card{padding:12px}
+  .card h3{font-size:15px}
+  .metric{font-size:23px}
+  .quick{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+@media (min-width:851px) and (max-width:1150px){
+  .sidebar{width:220px;padding:16px 11px}
+  .main{margin-left:220px}
+  .brand img{width:108px;height:108px}
+  .topbar{padding:12px 16px}
+  .top-actions{gap:7px}
+  .top-actions .btn{padding:10px 11px;font-size:13px}
+  .content{padding:18px}
+  .cards,.quick{gap:10px}
+}
+
+@media (min-width:1151px){
+  .content{max-width:1600px;margin:0 auto}
+}
+/* SK House Construction — ajuste visual del botón Actualizar aplicación */
+.settings-update-app,
+button[onclick="updateApplication()"]{
+  min-height:44px;
+  line-height:1.2;
+  box-sizing:border-box;
+  transform:none;
+  transition:none;
+  will-change:auto;
+}
