@@ -1,4 +1,4 @@
-const APP_VERSION='stable-2.4.2';
+const APP_VERSION='stable-2.4.3';
 const TEMPLATE_VERSION='3.1';
 const TEMPLATE_MAX_FILE_BYTES=100*1024;
 const TEMPLATE_DEFAULT='corporativo-azul';
@@ -208,6 +208,26 @@ state._meta.templateId=String(state._meta.templateId||TEMPLATE_DEFAULT);
 normalizeStateData();
 let cloudSyncReady=false;
 let cloudSaveQueue=Promise.resolve();
+let cloudAccountRole='user';
+const MASTER_ADMIN_EMAIL='skhouseconstruction@gmail.com';
+function isMasterAdmin(){
+ const email=String(window.SKCloud?.getLastLoginEmail?.()||'').trim().toLowerCase();
+ return email===MASTER_ADMIN_EMAIL;
+}
+async function refreshCloudAccountRole(){
+ try{
+  const s=window.SKCloud?await window.SKCloud.session():null;
+  if(!s){cloudAccountRole='user';return cloudAccountRole;}
+  const email=String(s.user?.email||'').trim().toLowerCase();
+  if(email===MASTER_ADMIN_EMAIL){cloudAccountRole='admin';return cloudAccountRole;}
+  cloudAccountRole=String(await window.SKCloud.getRole?.()||'user')==='admin'?'admin':'user';
+  return cloudAccountRole;
+ }catch(e){
+  cloudAccountRole=isMasterAdmin()?'admin':'user';
+  console.warn('Cloud role:',e);
+  return cloudAccountRole;
+ }
+}
 state._meta.cloudSyncPending=Boolean(state._meta.cloudSyncPending);
 function touchRecord(record){if(record&&typeof record==='object')record.updatedAt=new Date().toISOString();state._meta.updatedAt=new Date().toISOString();state._meta.localRevision=(Number(state._meta.localRevision)||0)+1;}
 function saveLocal(){
@@ -445,8 +465,8 @@ async function updateCloudStatus(){
  }
 }
 async function cloudConfigure(){const url=document.getElementById('cloud_url').value.trim(),key=document.getElementById('cloud_key').value.trim();if(!url||!key)return toast('Escribe la URL y la clave pública de Supabase');window.SKCloud.setConfig(url,key);await updateCloudStatus();toast('Configuración de nube guardada')}
-async function cloudLogin(){try{const email=document.getElementById('cloud_email').value.trim(),pass=document.getElementById('cloud_pass').value;if(!email||!pass)return toast('Escribe correo y contraseña');const r=await window.SKCloud.signIn(email,pass);if(r.error)throw r.error;localStorage.setItem('skhc_last_login_email_v1',email);await syncCloudIntoState();clearInterval(window.SKCloudSyncTimer);window.SKCloudSyncTimer=setInterval(backgroundCloudSync,30000);toast('Conectado a la nube')}catch(e){console.error(e);toast(e.message||'No se pudo iniciar sesión')}}
-async function cloudSignup(){try{const email=document.getElementById('cloud_email').value.trim(),pass=document.getElementById('cloud_pass').value;if(!email||pass.length<6)return toast('Usa un correo y una contraseña de al menos 6 caracteres');const r=await window.SKCloud.signUp(email,pass);if(r.error)throw r.error; if(r.data.session){await syncCloudIntoState();clearInterval(window.SKCloudSyncTimer);window.SKCloudSyncTimer=setInterval(backgroundCloudSync,30000);toast('Cuenta creada y conectada')}else toast('Cuenta creada. Revisa tu correo para confirmar y después inicia sesión.')}catch(e){console.error(e);toast(e.message||'No se pudo crear la cuenta')}}
+async function cloudLogin(){try{const email=document.getElementById('cloud_email').value.trim(),pass=document.getElementById('cloud_pass').value;if(!email||!pass)return toast('Escribe correo y contraseña');const r=await window.SKCloud.signIn(email,pass);if(r.error)throw r.error;localStorage.setItem('skhc_last_login_email_v1',email);await syncCloudIntoState();await refreshCloudAccountRole();render();clearInterval(window.SKCloudSyncTimer);window.SKCloudSyncTimer=setInterval(backgroundCloudSync,30000);toast('Conectado a la nube')}catch(e){console.error(e);toast(e.message||'No se pudo iniciar sesión')}}
+async function cloudSignup(){try{const email=document.getElementById('cloud_email').value.trim(),pass=document.getElementById('cloud_pass').value;if(!email||pass.length<6)return toast('Usa un correo y una contraseña de al menos 6 caracteres');const r=await window.SKCloud.signUp(email,pass);if(r.error)throw r.error; if(r.data.session){await syncCloudIntoState();await refreshCloudAccountRole();clearInterval(window.SKCloudSyncTimer);window.SKCloudSyncTimer=setInterval(backgroundCloudSync,30000);toast('Cuenta creada y conectada')}else toast('Cuenta creada. Revisa tu correo para confirmar y después inicia sesión.')}catch(e){console.error(e);toast(e.message||'No se pudo crear la cuenta')}}
 async function cloudLogout(){
  try{
  if(!window.SKCloud)return;
@@ -1004,7 +1024,7 @@ function settings(c){
  <input type="hidden" id="s_secondaryBankEnabled" value="${secondary?'1':'0'}">
  <div id="secondaryBankCard" class="bank-settings-card secondary-bank-card${secondary?'':' hidden-bank'}"><div class="bank-settings-head"><div class="bank-settings-label">CUENTA ADICIONAL</div><button type="button" class="btn danger bank-remove-btn" onclick="toggleSecondaryBankFields(false)">Quitar cuenta</button></div><div class="form-grid">${fields([['bank2','Banco'],['holder2','Titular'],['account2','Cuenta / CLABE'],['card2','Número de tarjeta']])}</div></div>
  <button id="addSecondaryBankBtn" type="button" class="btn outline bank-add-btn${secondary?' hidden-bank':''}" onclick="toggleSecondaryBankFields(true)">＋ Agregar otra cuenta bancaria</button></div>
- <div class="form-grid"><div class="field"><label>IVA (%)</label><input id="s_iva" inputmode="decimal" value="${state.settings.iva}"></div><div class="field full"><label>Notas predeterminadas</label><textarea id="s_notes" rows="3">${esc(state.settings.notes||'')}</textarea></div></div><div class="actions"><button class="btn primary" onclick="saveSettings()">Guardar configuración</button><button class="btn outline" onclick="backup()">Respaldar datos</button><label class="btn outline">Restaurar<input type="file" accept=".json" hidden onchange="restore(this.files[0])"></label></div></div><div class="section"><h2>Actualizar aplicación</h2><p class="muted">Cuando publiquemos una nueva versión, usa este botón para descargarla y reiniciar la aplicación. Tus datos y tu sesión no se borran.</p><div class="actions"><button class="btn primary" onclick="updateApplication()">Actualizar aplicación</button></div></div><div class="section"><h2> Base de datos en línea</h2><p class="muted">Conecta esta aplicación a Supabase para que clientes, productos, cotizaciones, notas y configuración estén disponibles desde cualquier dispositivo. Usa la misma cuenta de acceso en todos tus equipos.</p><div class="form-grid"><div class="field full"><label>Supabase Project URL</label><input id="cloud_url" value="${esc(cfg.url||'')}" placeholder="https://tu-proyecto.supabase.co"></div><div class="field full"><label>Supabase Publishable / Anon Key</label><input id="cloud_key" value="${esc(cfg.key||'')}" placeholder="sb_publishable_..."></div><div class="field"><label>Correo de acceso</label><input id="cloud_email" type="email" autocomplete="username" value="${esc(window.SKCloud?.getLastLoginEmail?.()||'')}" placeholder="tu-correo@ejemplo.com"></div><div class="field"><label>Contraseña</label><input id="cloud_pass" type="password" autocomplete="current-password" placeholder="Mínimo 6 caracteres"><small class="muted">La sesión se conserva automáticamente. Por seguridad, la contraseña no se guarda en la aplicación.</small></div></div><div class="actions"><button class="btn outline" onclick="cloudConfigure()">Guardar conexión</button><button class="btn primary" onclick="cloudLogin()">Iniciar sesión</button><button class="btn outline" onclick="cloudSignup()">Crear cuenta</button><button class="btn danger" onclick="cloudLogout()">Cerrar sesión</button></div><div id="cloudStatus" class="small" style="margin-top:10px">Comprobando conexión…</div></div><div class="section"><h2>Logotipo</h2><img src="logo.jpg" class="logo-preview"><p class="muted small">El logotipo oficial está integrado en la aplicación y en los documentos.</p></div>`
+ <div class="form-grid"><div class="field"><label>IVA (%)</label><input id="s_iva" inputmode="decimal" value="${state.settings.iva}"></div><div class="field full"><label>Notas predeterminadas</label><textarea id="s_notes" rows="3">${esc(state.settings.notes||'')}</textarea></div></div><div class="actions"><button class="btn primary" onclick="saveSettings()">Guardar configuración</button><button class="btn outline" onclick="backup()">Respaldar datos</button><label class="btn outline">Restaurar<input type="file" accept=".json" hidden onchange="restore(this.files[0])"></label></div></div><div class="section"><h2>Actualizar aplicación</h2><p class="muted">Cuando publiquemos una nueva versión, usa este botón para descargarla y reiniciar la aplicación. Tus datos y tu sesión no se borran.</p><div class="actions"><button class="btn primary" onclick="updateApplication()">Actualizar aplicación</button></div></div><div class="section"><h2>Cuenta y permisos</h2><p class="muted">La cuenta maestra de SK House Construction es <strong>${MASTER_ADMIN_EMAIL}</strong>.</p><div class="admin-role-card"><strong>${cloudAccountRole==='admin'?'👑 Administrador':'👤 Usuario'}</strong><span class="muted">${cloudAccountRole==='admin'?'Esta cuenta tiene el rol de administrador principal.':'Esta cuenta utiliza el rol de usuario.'}</span></div></div><div class="section"><h2> Base de datos en línea</h2><p class="muted">Conecta esta aplicación a Supabase para que clientes, productos, cotizaciones, notas y configuración estén disponibles desde cualquier dispositivo. Usa la misma cuenta de acceso en todos tus equipos.</p><div class="form-grid"><div class="field full"><label>Supabase Project URL</label><input id="cloud_url" value="${esc(cfg.url||'')}" placeholder="https://tu-proyecto.supabase.co"></div><div class="field full"><label>Supabase Publishable / Anon Key</label><input id="cloud_key" value="${esc(cfg.key||'')}" placeholder="sb_publishable_..."></div><div class="field"><label>Correo de acceso</label><input id="cloud_email" type="email" autocomplete="username" value="${esc(window.SKCloud?.getLastLoginEmail?.()||'')}" placeholder="tu-correo@ejemplo.com"></div><div class="field"><label>Contraseña</label><input id="cloud_pass" type="password" autocomplete="current-password" placeholder="Mínimo 6 caracteres"><small class="muted">La sesión se conserva automáticamente. Por seguridad, la contraseña no se guarda en la aplicación.</small></div></div><div class="actions"><button class="btn outline" onclick="cloudConfigure()">Guardar conexión</button><button class="btn primary" onclick="cloudLogin()">Iniciar sesión</button><button class="btn outline" onclick="cloudSignup()">Crear cuenta</button><button class="btn danger" onclick="cloudLogout()">Cerrar sesión</button></div><div id="cloudStatus" class="small" style="margin-top:10px">Comprobando conexión…</div></div><div class="section"><h2>Logotipo</h2><img src="logo.jpg" class="logo-preview"><p class="muted small">El logotipo oficial está integrado en la aplicación y en los documentos.</p></div>`
  setTimeout(()=>updateCloudStatus(),0);
 }
 function toggleSecondaryBankFields(show){
@@ -1907,6 +1927,8 @@ async function initializeCloudSession(){
  const user=await window.SKCloud.session();
  if(user){
  await syncCloudIntoState();
+ await refreshCloudAccountRole();
+ render();
  clearInterval(window.SKCloudSyncTimer);
  window.SKCloudSyncTimer=setInterval(backgroundCloudSync,30000);
  }else{
@@ -1927,6 +1949,7 @@ window.addEventListener('sk-auth-state-change',e=>{
  const event=e.detail?.event;
  if(event==='SIGNED_OUT'){
  cloudSyncReady=false;
+ cloudAccountRole='user';
  clearInterval(window.SKCloudSyncTimer);
  window.SKCloudSyncTimer=null;
  updateCloudStatus();
@@ -1948,6 +1971,7 @@ window.archive=archive;window.templates=templates;window.selectTemplate=selectTe
 window.returnToDocument=returnToDocument;
 
 window.cloudConfigure=cloudConfigure;window.cloudLogin=cloudLogin;window.cloudSignup=cloudSignup;window.cloudLogout=cloudLogout;window.syncCloudIntoState=syncCloudIntoState;window.updateCloudStatus=updateCloudStatus;
+window.refreshCloudAccountRole=refreshCloudAccountRole;
 window.updateApplication=updateApplication;
 
 window.sharePDF=shareDoc;window.shareToolList=shareToolList;window.emailToolList=emailToolList;window.tools=tools;window.newToolList=newToolList;window.editToolList=editToolList;window.dltTool=dltTool;window.saveToolList=saveToolList;window.previewToolList=previewToolList;window.removeImage=removeImage;window.editImageText=editImageText;

@@ -88,7 +88,7 @@
  const meta={...(state._meta||{})};
  // cloudSyncPending is a local/transient flag; never replicate it between devices.
  delete meta.cloudSyncPending;
- return {version:'stable-2.4.2',meta,settings:state.settings,clients:state.clients,products:state.products,documents:state.documents,toolLists:state.toolLists};
+ return {version:'stable-2.4.3',meta,settings:state.settings,clients:state.clients,products:state.products,documents:state.documents,toolLists:state.toolLists};
  }
  function mergePayload(local,remote){
  if(!remote)return local;
@@ -121,7 +121,7 @@
  const ru=Array.isArray(rmeta.usedFolios?.[k])?rmeta.usedFolios[k]:[];
  merged.meta.usedFolios[k]=[...new Set([...lu,...ru].map(String).filter(Boolean))];
  }
- merged.version='stable-2.4.2';
+ merged.version='stable-2.4.3';
  return merged;
  }
  async function saveState(state,expectedUpdatedAt=null){
@@ -171,6 +171,12 @@
  if(error) throw error;
  return data?{payload:normalizePayload(data.payload),updatedAt:data.updated_at||null}:null;
  }
+ async function getRole(){
+ const s=await session(); if(!s) return null;
+ const {data,error}=await client.from('company_user_roles').select('role').eq('user_id',s.user.id).maybeSingle();
+ if(error) throw error;
+ return data?.role||'user';
+ }
  window.SKCloud={
  getConfig:()=>config||{url:'',key:''},
  getLastLoginEmail:()=>localStorage.getItem(AUTH_EMAIL_KEY)||'',
@@ -185,7 +191,7 @@
  }
  init();
  },
- configured,session,signIn,signUp,signOut,saveState,loadState,
+ configured,session,signIn,signUp,signOut,saveState,loadState,getRole,
  isConnected:async()=>!!(await session())
  };
 })();
