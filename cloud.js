@@ -88,7 +88,7 @@
  const meta={...(state._meta||{})};
  // cloudSyncPending is a local/transient flag; never replicate it between devices.
  delete meta.cloudSyncPending;
- return {version:'stable-2.4.3',meta,settings:state.settings,clients:state.clients,products:state.products,documents:state.documents,toolLists:state.toolLists};
+ return {version:'stable-2.4.7',meta,settings:state.settings,clients:state.clients,products:state.products,documents:state.documents,toolLists:state.toolLists};
  }
  function mergePayload(local,remote){
  if(!remote)return local;
@@ -121,7 +121,7 @@
  const ru=Array.isArray(rmeta.usedFolios?.[k])?rmeta.usedFolios[k]:[];
  merged.meta.usedFolios[k]=[...new Set([...lu,...ru].map(String).filter(Boolean))];
  }
- merged.version='stable-2.4.3';
+ merged.version='stable-2.4.7';
  return merged;
  }
  async function saveState(state,expectedUpdatedAt=null){

@@ -1,4 +1,4 @@
-const CACHE='sk-house-construction-stable-v23-14';
+const CACHE='sk-house-construction-stable-v23-18';
 const APP_SHELL=['./','./index.html','./styles.css','./app.js','./cloud.js','./logo.jpg','./logo.svg','./logo_pdf_hd.png','./manifest.webmanifest','./icon-180.png','./icon-192.png','./icon-512.png'];
 const STATIC_EXTERNAL=[
  'cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',

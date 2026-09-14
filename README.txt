@@ -28,4 +28,4 @@ Sincronización:
 3. La aplicación descarga primero los datos existentes y después sincroniza cambios.
 4. La aplicación utiliza control de versión y comparación por fecha para reducir sobrescrituras accidentales.
 
-Versión interna: stable-2.4.2
+Versión interna: stable-2.4.7

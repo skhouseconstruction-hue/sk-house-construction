@@ -1,4 +1,4 @@
-const APP_VERSION='stable-2.4.3';
+const APP_VERSION='stable-2.4.7';
 const TEMPLATE_VERSION='3.1';
 const TEMPLATE_MAX_FILE_BYTES=100*1024;
 const TEMPLATE_DEFAULT='corporativo-azul';
@@ -243,10 +243,15 @@ function saveLocal(){
 }
 function applyCloudState(payload){
  if(!payload||typeof payload!=='object')return;
+ // Never destroy an active document/tool editor while a background cloud
+ // refresh is running. The editor is local working state until the user saves.
+ const activeEditing=state.editing&&typeof state.editing==='object'
+  ? JSON.parse(JSON.stringify(state.editing))
+  : null;
  const merged=mergeCloudState(state,payload);
  Object.keys(state).forEach(k=>delete state[k]);
  Object.assign(state,merged);
- state.editing=null;
+ if(activeEditing)state.editing=activeEditing;
  normalizeStateData();
 }
 async function persistCloud(){
@@ -254,17 +259,20 @@ async function persistCloud(){
  try{
  const revision=Number(state._meta?.localRevision)||0;
  const result=await window.SKCloud.saveState(state);
- if(result?.payload){
- if((Number(state._meta?.localRevision)||0)===revision){
- applyCloudState(result.payload);
- state._meta.cloudSyncPending=false;
- saveLocal();
- }else{
- state._meta.cloudSyncPending=true;
- saveLocal();
+ const revisionUnchanged=(Number(state._meta?.localRevision)||0)===revision;
+ if(result?.payload&&revisionUnchanged){
+  applyCloudState(result.payload);
+  state._meta.cloudSyncPending=false;
+  state._meta.cloudUpdatedAt=result.updatedAt||state._meta.cloudUpdatedAt||'';
+  state._meta.cloudFingerprint=cloudPayloadFingerprint(result.payload);
+  saveLocal();
+ }else if(result?.payload){
+  // New local edits happened while the upload was in flight. The returned
+  // cloud payload belongs to the older revision, so never record its
+  // fingerprint as the current local baseline. Leave the upload pending.
+  state._meta.cloudSyncPending=true;
+  saveLocal();
  }
- }
- if(result?.updatedAt)state._meta.cloudUpdatedAt=result.updatedAt;
  return result;
  }catch(e){
  state._meta.cloudSyncPending=true;
@@ -360,52 +368,75 @@ async function syncCloudIntoState(){
  try{
  const cloud=window.SKCloud?await window.SKCloud.loadState():null;
  const user=window.SKCloud?await window.SKCloud.session():null;
- if(!user) {cloudSyncReady=false;updateCloudStatus();return;}
+ if(!user){cloudSyncReady=false;updateCloudStatus();return;}
  const owner=String(state._meta?.ownerUserId||'');
  const sameOwner=!owner || owner===String(user.user.id);
- if(!sameOwner){
- resetLocalState();
+ // Never interrupt an active editor for the same account. The editor is
+ // working state and will be persisted by save(); a later background sync
+ // can safely reconcile the saved snapshot.
+ if(sameOwner&&state.editing&&typeof state.editing==='object'){
+  cloudSyncReady=true;
+  state._meta.ownerUserId=String(user.user.id);
+  state._meta.cloudSyncPending=true;
+  saveLocal();
+  return;
  }
+ if(!sameOwner)resetLocalState();
  const localBefore=buildCloudComparable(state);
  if(cloud?.payload){
- const merged=mergeCloudState(state,cloud.payload);
- const mergedFingerprint=cloudPayloadFingerprint({version:APP_VERSION,settings:merged.settings,clients:merged.clients,products:merged.products,documents:merged.documents,toolLists:merged.toolLists,meta:merged._meta});
- const cloudFingerprint=cloudPayloadFingerprint(cloud.payload);
- Object.keys(state).forEach(k=>delete state[k]);
- Object.assign(state,merged);
- state.editing=null;
- state._meta.ownerUserId=String(user.user.id);
- state._meta.cloudUpdatedAt=cloud.updatedAt||'';
- normalizeStateData();
- saveLocal();
- cloudSyncReady=true;
- if(mergedFingerprint!==cloudFingerprint || (!sameOwner && owner)){
- const saved=await window.SKCloud.saveState(state,cloud.updatedAt||null);
- if(saved?.payload)applyCloudState(saved.payload);
- if(saved?.updatedAt)state._meta.cloudUpdatedAt=saved.updatedAt;
- state._meta.ownerUserId=String(user.user.id); state._meta.cloudSyncPending=false; saveLocal();
- } else if(sameOwner && owner && localBefore!==cloudFingerprint && hasLocalBusinessData()){
- const saved=await window.SKCloud.saveState(state,cloud.updatedAt||null);
- if(saved?.payload)applyCloudState(saved.payload);
- if(saved?.updatedAt)state._meta.cloudUpdatedAt=saved.updatedAt;
- state._meta.ownerUserId=String(user.user.id); state._meta.cloudSyncPending=false; saveLocal();
+  const merged=mergeCloudState(state,cloud.payload);
+  const mergedFingerprint=cloudPayloadFingerprint({version:APP_VERSION,settings:merged.settings,clients:merged.clients,products:merged.products,documents:merged.documents,toolLists:merged.toolLists,meta:merged._meta});
+  const cloudFingerprint=cloudPayloadFingerprint(cloud.payload);
+  Object.keys(state).forEach(k=>delete state[k]);
+  Object.assign(state,merged);
+  state._meta.ownerUserId=String(user.user.id);
+  state._meta.cloudUpdatedAt=cloud.updatedAt||'';
+  normalizeStateData();
+  saveLocal();
+  cloudSyncReady=true;
+  if(mergedFingerprint!==cloudFingerprint || (!sameOwner&&owner)){
+   state._meta.cloudSyncPending=true;
+   saveLocal();
+   const saved=await window.SKCloud.saveState(state,cloud.updatedAt||null);
+   if(saved?.payload){applyCloudState(saved.payload);state._meta.cloudFingerprint=cloudPayloadFingerprint(saved.payload);}
+   if(saved?.updatedAt)state._meta.cloudUpdatedAt=saved.updatedAt;
+   state._meta.ownerUserId=String(user.user.id);
+   state._meta.cloudSyncPending=false;
+   saveLocal();
+  }else if(sameOwner&&owner&&localBefore!==cloudFingerprint&&hasLocalBusinessData()){
+   state._meta.cloudSyncPending=true;
+   saveLocal();
+   const saved=await window.SKCloud.saveState(state,cloud.updatedAt||null);
+   if(saved?.payload){applyCloudState(saved.payload);state._meta.cloudFingerprint=cloudPayloadFingerprint(saved.payload);}
+   if(saved?.updatedAt)state._meta.cloudUpdatedAt=saved.updatedAt;
+   state._meta.ownerUserId=String(user.user.id);
+   state._meta.cloudSyncPending=false;
+   saveLocal();
+  }else{
+   state._meta.cloudFingerprint=cloudFingerprint;
+   state._meta.cloudSyncPending=false;
+   saveLocal();
+  }
+  toast('Datos sincronizados con la nube');
+ }else{
+  cloudSyncReady=true;
+  state._meta.ownerUserId=String(user.user.id);
+  state._meta.cloudSyncPending=true;
+  saveLocal();
+  const saved=await window.SKCloud.saveState(state,null);
+  if(saved?.payload)applyCloudState(saved.payload);
+  if(saved?.updatedAt)state._meta.cloudUpdatedAt=saved.updatedAt;
+  if(saved?.payload)state._meta.cloudFingerprint=cloudPayloadFingerprint(saved.payload);
+  state._meta.cloudSyncPending=false;
+  saveLocal();
+  toast('Datos locales sincronizados con la nube');
  }
- toast('Datos sincronizados con la nube');
- } else {
- cloudSyncReady=true;
- state._meta.ownerUserId=String(user.user.id);
- const saved=await window.SKCloud.saveState(state,null);
- if(saved?.payload)applyCloudState(saved.payload);
- if(saved?.updatedAt)state._meta.cloudUpdatedAt=saved.updatedAt;
- state._meta.cloudSyncPending=false; saveLocal();
- toast('Datos locales sincronizados con la nube');
- }
- render(); updateCloudStatus();
+ render();updateCloudStatus();
  }catch(e){
  cloudSyncReady=false;
  console.error('Cloud sync:',e);
  const msg=String(e?.message||e?.details||e?.hint||e?.code||'');
- toast(msg ? `No se pudo sincronizar con la nube: ${msg}` : 'No se pudo sincronizar con la nube. Tus datos locales permanecen intactos.');
+ toast(msg?`No se pudo sincronizar con la nube: ${msg}`:'No se pudo sincronizar con la nube. Tus datos locales permanecen intactos.');
  updateCloudStatus();
  }
  })();
@@ -419,29 +450,67 @@ function buildCloudComparable(s){
 async function backgroundCloudSync(){
  if(!window.SKCloud||!cloudSyncReady)return;
  try{
- const user=await window.SKCloud.session(); if(!user)return;
- const cloud=await window.SKCloud.loadState(); if(!cloud?.payload)return;
- if(String(state._meta?.ownerUserId||'')!==String(user.user.id)){await syncCloudIntoState();return;}
- const merged=mergeCloudState(state,cloud.payload);
- const localFp=buildCloudComparable(state), mergedFp=buildCloudComparable(merged), cloudFp=cloudPayloadFingerprint(cloud.payload);
- const changed=mergedFp!==localFp;
- if(changed){
- Object.keys(state).forEach(k=>delete state[k]);Object.assign(state,merged);
- state._meta.ownerUserId=String(user.user.id);state._meta.cloudUpdatedAt=cloud.updatedAt||'';
- normalizeStateData();saveLocal();render();
- }
- if(mergedFp!==cloudFp){
- const saved=await window.SKCloud.saveState(state,cloud.updatedAt||null);
- if(saved?.payload)applyCloudState(saved.payload);
- if(saved?.updatedAt)state._meta.cloudUpdatedAt=saved.updatedAt;
- state._meta.ownerUserId=String(user.user.id);
- state._meta.cloudSyncPending=false;
- saveLocal();
- }else if(state._meta?.cloudSyncPending){
- // The cloud version already represents the merged state; there is nothing left to upload.
- state._meta.cloudSyncPending=false;
- saveLocal();
- }
+  const user=await window.SKCloud.session(); if(!user)return;
+  if(String(state._meta?.ownerUserId||'')!==String(user.user.id)){await syncCloudIntoState();return;}
+  // Pending local changes always have priority. Upload them first; never
+  // replace local state with a remote snapshot while changes are pending.
+  if(state._meta?.cloudSyncPending){
+   await persistCloud();
+   return;
+  }
+  const cloud=await window.SKCloud.loadState(); if(!cloud?.payload)return;
+  const localFp=buildCloudComparable(state);
+  const lastSyncedFp=String(state._meta?.cloudFingerprint||'');
+  const cloudFp=cloudPayloadFingerprint(cloud.payload);
+  // If the local state changed since the last successful cloud sync, it is
+  // newer work and must not be silently replaced by remote data.
+  if(lastSyncedFp && localFp!==lastSyncedFp){
+   state._meta.cloudSyncPending=true; saveLocal();
+   await persistCloud();
+   return;
+  }
+  // Only pull a genuinely new remote snapshot when the local state is known
+  // to match the last synced version. This prevents stale-cloud overwrites.
+  if(lastSyncedFp && cloudFp!==lastSyncedFp){
+   const activeEditing=Boolean(state.editing&&typeof state.editing==='object');
+   if(activeEditing)return;
+   const merged=mergeCloudState(state,cloud.payload);
+   Object.keys(state).forEach(k=>delete state[k]); Object.assign(state,merged);
+   state._meta.ownerUserId=String(user.user.id);
+   state._meta.cloudUpdatedAt=cloud.updatedAt||'';
+   state._meta.cloudFingerprint=cloudFp;
+   normalizeStateData(); saveLocal(); render();
+   return;
+  }
+  // First sync after an older version that did not store a fingerprint.
+  // Keep the existing merge logic but record the resulting cloud baseline.
+  if(!lastSyncedFp){
+   const merged=mergeCloudState(state,cloud.payload);
+   const mergedFp=buildCloudComparable(merged);
+   const localHasData=hasLocalBusinessData();
+   if(!localHasData && mergedFp===cloudFp){
+    // Fresh device: safely hydrate it from the existing cloud snapshot.
+    Object.keys(state).forEach(k=>delete state[k]); Object.assign(state,merged);
+    state._meta.ownerUserId=String(user.user.id);
+    state._meta.cloudUpdatedAt=cloud.updatedAt||'';
+    state._meta.cloudFingerprint=cloudFp;
+    state._meta.cloudSyncPending=false;
+    normalizeStateData(); saveLocal(); render();
+   }else if(mergedFp!==cloudFp){
+    // Existing local data: merge it with the cloud snapshot and upload the
+    // merged result instead of allowing either side to silently disappear.
+    Object.keys(state).forEach(k=>delete state[k]); Object.assign(state,merged);
+    state._meta.ownerUserId=String(user.user.id);
+    state._meta.cloudUpdatedAt=cloud.updatedAt||'';
+    state._meta.cloudSyncPending=true;
+    normalizeStateData(); saveLocal();
+    await persistCloud();
+   }else{
+    state._meta.cloudFingerprint=cloudFp;
+    state._meta.cloudUpdatedAt=cloud.updatedAt||'';
+    saveLocal();
+   }
+  }
  }catch(e){console.warn('Background cloud sync:',e);}
 }
 function cloudStatusText(){return window.SKCloud?.configured()?'Configuración de nube guardada':'Nube no configurada'}
@@ -629,17 +698,45 @@ function renderItems(){
  }).join('');
  tbody.querySelectorAll('[data-catalog]').forEach(sel=>sel.addEventListener('change',()=>{const i=Number(sel.dataset.catalog),p=state.products[Number(sel.value)];if(p&&window.SKCatalog?.applyProduct)window.SKCatalog.applyProduct(p,i);}));
  tbody.querySelectorAll('[data-i][data-k]').forEach(e=>e.addEventListener('input',()=>{const i=Number(e.dataset.i),k=e.dataset.k;if(!state.editing?.items?.[i])return;state.editing.items[i][k]=e.value;updateTotalsUI();}));
- tbody.querySelectorAll('[data-img]').forEach(inp=>inp.addEventListener('change',async()=>{const i=Number(inp.dataset.img);for(const file of Array.from(inp.files||[])){try{const data=await resizeImage(file,1000);state.editing.items[i].images=state.editing.items[i].images||[];state.editing.items[i].images.push({data,text:'',scale:1,captionSource:'user'});}catch(e){console.error(e);toast('No se pudo cargar una imagen');}}renderItems();updateTotalsUI();}));
+ tbody.querySelectorAll('[data-img]').forEach(inp=>inp.addEventListener('change',async()=>{if(inp.dataset.processing==='1')return;inp.dataset.processing='1';const i=Number(inp.dataset.img);const editorRef=state.editing;const itemRef=editorRef?.items?.[i];if(!editorRef||!itemRef){inp.dataset.processing='0';return;}for(const file of Array.from(inp.files||[])){try{const data=await resizeImage(file,1000);if(state.editing!==editorRef||!state.editing?.items?.[i]){toast('La carga de imagen se canceló porque cambió el documento.');break;}state.editing.items[i].images=state.editing.items[i].images||[];state.editing.items[i].images.push({data,text:'',scale:1,captionSource:'user'});saveLocal();}catch(e){console.error(e);toast(e?.message==='IMAGE_FILE_TOO_LARGE'?'La imagen supera 15 MB. Elige una imagen más pequeña.':'No se pudo cargar una imagen');}}renderItems();updateTotalsUI();inp.dataset.processing='0';}));;
  tbody.querySelectorAll('[data-remove]').forEach(b=>b.addEventListener('click',()=>{const i=Number(b.dataset.remove);if(state.editing.items.length>1){state.editing.items.splice(i,1);renderItems();updateTotalsUI();}}));
 }
 
-function resizeImage(file,max){
- return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const scale=Math.min(1,max/im.width);const c=document.createElement('canvas');c.width=Math.round(im.width*scale);c.height=Math.round(im.height*scale);c.getContext('2d').drawImage(im,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.88));};im.onerror=reject;im.src=r.result;};r.onerror=reject;r.readAsDataURL(file);});
+async function resizeImage(file,max){
+ if(!file||!String(file.type||'').startsWith('image/'))throw new Error('INVALID_IMAGE_FILE');
+ if(Number(file.size)>15*1024*1024)throw new Error('IMAGE_FILE_TOO_LARGE');
+ const limit=Math.max(200,Math.min(900,Number(max)||900));
+ const url=URL.createObjectURL(file);
+ try{
+  const im=new Image();
+  im.decoding='async';
+  const loaded=new Promise((resolve,reject)=>{
+   let settled=false;
+   const finish=(fn,v)=>{if(settled)return;settled=true;clearTimeout(timer);fn(v)};
+   const timer=setTimeout(()=>finish(reject,new Error('IMAGE_LOAD_TIMEOUT')),20000);
+   im.onload=()=>finish(resolve,im);
+   im.onerror=()=>finish(reject,new Error('IMAGE_DECODE_FAILED'));
+  });
+  im.src=url;
+  await loaded;
+  try{await im.decode?.()}catch(_e){}
+  const w=Number(im.naturalWidth||im.width),h=Number(im.naturalHeight||im.height);
+  if(!w||!h)throw new Error('IMAGE_EMPTY');
+  const scale=Math.min(1,limit/w);
+  const cw=Math.max(1,Math.round(w*scale)),ch=Math.max(1,Math.round(h*scale));
+  const c=document.createElement('canvas');c.width=cw;c.height=ch;
+  const ctx=c.getContext('2d',{alpha:false});
+  if(!ctx)throw new Error('CANVAS_UNAVAILABLE');
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,cw,ch);ctx.drawImage(im,0,0,cw,ch);
+  const data=c.toDataURL('image/jpeg',.72);
+  if(!data||data.length<100)throw new Error('IMAGE_ENCODE_FAILED');
+  return data;
+ }finally{URL.revokeObjectURL(url)}
 }
-function editImageText(i,j){const old=state.editing.items[i].images[j].text||'';const t=prompt('Texto para la imagen (ej. Trabajo por realizar, 25 m², 18 ml, descripción del trabajo):',old);if(t!==null){state.editing.items[i].images[j].text=cleanImageCaption(t);state.editing.items[i].images[j].captionSource='user';renderItems();}}
-function removeImage(i,j){if(confirm('¿Eliminar esta imagen?')){state.editing.items[i].images.splice(j,1);renderItems();}}
-function resizeAttachedImage(i,j,delta){const im=state.editing.items[i].images[j];im.scale=Math.max(.5,Math.min(2.5,Math.round(((im.scale||1)+delta)*10)/10));renderItems();}
-function setAttachedImageScale(i,j,v){state.editing.items[i].images[j].scale=Number(v)||1;renderItems();}
+function editImageText(i,j){const old=state.editing.items[i].images[j].text||'';const t=prompt('Texto para la imagen (ej. Trabajo por realizar, 25 m², 18 ml, descripción del trabajo):',old);if(t!==null){state.editing.items[i].images[j].text=cleanImageCaption(t);state.editing.items[i].images[j].captionSource='user';saveLocal();renderItems();}}
+function removeImage(i,j){if(confirm('¿Eliminar esta imagen?')){state.editing.items[i].images.splice(j,1);saveLocal();renderItems();}}
+function resizeAttachedImage(i,j,delta){const im=state.editing.items[i].images[j];im.scale=Math.max(.5,Math.min(2.5,Math.round(((im.scale||1)+delta)*10)/10));saveLocal();renderItems();}
+function setAttachedImageScale(i,j,v){state.editing.items[i].images[j].scale=Number(v)||1;saveLocal();renderItems();}
 function bindDocumentInputs(){
  const map={date:'date',dateStart:'dateStart',dateEnd:'dateEnd',cname:'client.name',cphone:'client.phone',cemail:'client.email',crfc:'client.rfc',caddr:'client.address',discount:'discount',notes:'notes'};
  Object.entries(map).forEach(([id,path])=>{
@@ -957,7 +1054,7 @@ function renderToolRows(){
  const d=state.toolEditing,box=document.getElementById('toolRows');if(!box)return;
  box.innerHTML=d.items.map((it,i)=>{const sc=Number(it.imageScale||1);return `<div class="tool-row tool-row-rich"><div>${i+1}</div><div><input data-t="${i}" data-k="name" value="${esc(it.name)}"><div class="image-tools"><label class="btn outline mini"><span class="emoji"></span> Imagen<input type="file" accept="image/*" hidden data-tool-img="${i}"></label>${it.image?`<img src="${it.image}" style="width:${Math.round(100*sc)}px;max-width:100%;height:auto;object-fit:contain"><div class="image-size-row"><button class="btn outline mini" onclick="resizeToolImage(${i},-.1)">−</button><input type="range" min=".5" max="2.5" step=".1" value="${sc}" oninput="setToolImageScale(${i},this.value)"><button class="btn outline mini" onclick="resizeToolImage(${i},.1)">＋</button><span class="small">${Math.round(sc*100)}%</span></div><button class="btn outline mini" onclick="editToolImageText(${i})">Texto</button><button class="btn danger mini" onclick="removeToolImage(${i})">Eliminar imagen</button>`:''}</div></div><div><input data-t="${i}" data-k="qty" inputmode="decimal" value="${esc(it.qty)}"></div><div><input data-t="${i}" data-k="unit" value="${esc(it.unit)}"></div><div><button class="btn danger" onclick="dltTool(${i})">×</button></div></div>`}).join('');
  box.querySelectorAll('[data-t]').forEach(e=>e.oninput=()=>{d.items[+e.dataset.t][e.dataset.k]=e.value});
- box.querySelectorAll('[data-tool-img]').forEach(inp=>inp.addEventListener('change',async()=>{const i=+inp.dataset.toolImg;if(inp.files[0]){d.items[i].image=await resizeImage(inp.files[0],1000);d.items[i].imageScale=1;renderToolRows();}}));
+ box.querySelectorAll('[data-tool-img]').forEach(inp=>inp.addEventListener('change',async()=>{if(inp.dataset.processing==='1')return;inp.dataset.processing='1';const i=+inp.dataset.toolImg;const editorRef=state.toolEditing;const itemRef=editorRef?.items?.[i];try{if(!editorRef||!itemRef||!inp.files?.[0])return;const data=await resizeImage(inp.files[0],1000);if(state.toolEditing!==editorRef||!state.toolEditing?.items?.[i]){toast('La carga de imagen se canceló porque cambió la lista.');return;}state.toolEditing.items[i].image=data;state.toolEditing.items[i].imageScale=1;saveLocal();renderToolRows();}catch(e){console.error('Tool image:',e);toast(e?.message==='IMAGE_FILE_TOO_LARGE'?'La imagen supera 15 MB. Elige una imagen más pequeña.':'No se pudo cargar la imagen de la herramienta.');}finally{inp.dataset.processing='0';}}));
 }
 function dltTool(i){if(state.toolEditing.items.length>1){state.toolEditing.items.splice(i,1);renderToolRows()}}
 function resizeToolImage(i,delta){const it=state.toolEditing.items[i];it.imageScale=Math.max(.5,Math.min(2.5,Math.round(((it.imageScale||1)+delta)*10)/10));renderToolRows();}
@@ -1288,6 +1385,7 @@ function docHTML(d){
  </div>
  `;
 }
+let pdfLibrariesPromise=null;
 async function loadScriptOnce(src,testFn){
  if(testFn())return true;
  return await new Promise(resolve=>{
@@ -1302,34 +1400,37 @@ async function loadScriptOnce(src,testFn){
  });
 }
 async function ensurePdfLibraries(){
- const readyJsPDF=()=>{
- if(window.jspdf?.jsPDF){window.jsPDF=window.jspdf.jsPDF;return true}
- return Boolean(window.jsPDF?.API);
- };
- const readyCanvas=()=>typeof window.html2canvas==='function';
- const jsPdfSources=[
- 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
- 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js'
- ];
- const canvasSources=[
- 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
- 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js'
- ];
- if(!readyJsPDF()){
- for(const src of jsPdfSources){
- try{await loadScriptOnce(src,readyJsPDF)}catch(e){console.warn('No se pudo cargar jsPDF:',src,e)}
- if(readyJsPDF())break;
- }
- }
- if(!readyCanvas()){
- for(const src of canvasSources){
- try{await loadScriptOnce(src,readyCanvas)}catch(e){console.warn('No se pudo cargar html2canvas:',src,e)}
- if(readyCanvas())break;
- }
- }
- // jsPDF is enough for the primary vector PDF path. html2canvas is
- // loaded opportunistically so the HTML/image fallback is also ready.
- return readyJsPDF();
+ if(pdfLibrariesPromise)return pdfLibrariesPromise;
+ pdfLibrariesPromise=(async()=>{
+  const readyJsPDF=()=>{
+   if(window.jspdf?.jsPDF){window.jsPDF=window.jspdf.jsPDF;return true}
+   return Boolean(window.jsPDF?.API);
+  };
+  const readyCanvas=()=>typeof window.html2canvas==='function';
+  const jsPdfSources=[
+   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+   'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js'
+  ];
+  const canvasSources=[
+   'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
+   'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js'
+  ];
+  if(!readyJsPDF()){
+   for(const src of jsPdfSources){
+    try{await loadScriptOnce(src,readyJsPDF)}catch(e){console.warn('No se pudo cargar jsPDF:',src,e)}
+    if(readyJsPDF())break;
+   }
+  }
+  if(!readyCanvas()){
+   for(const src of canvasSources){
+    try{await loadScriptOnce(src,readyCanvas)}catch(e){console.warn('No se pudo cargar html2canvas:',src,e)}
+    if(readyCanvas())break;
+   }
+  }
+  return readyJsPDF();
+ })();
+ try{return await pdfLibrariesPromise}
+ finally{pdfLibrariesPromise=null}
 }
 
 async function buildPDFBlob(d){
@@ -1962,8 +2063,6 @@ window.addEventListener('sk-auth-state-change',e=>{
  initializeCloudSession();
  }
 });
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')backgroundCloudSync();});
-window.addEventListener('focus',backgroundCloudSync);
 initializeCloudSession();
 
 window.archive=archive;window.templates=templates;window.selectTemplate=selectTemplate;window.downloadTemplate=downloadTemplate;window.installTemplate=installTemplate;window.renderArchiveResults=renderArchiveResults;window.goBack=goBack;window.toggleSidebar=toggleSidebar;window.editDoc=editDoc;window.deleteDoc=deleteDoc;window.deleteClient=deleteClient;window.deleteProduct=deleteProduct;window.deleteToolList=deleteToolList;window.previewStored=previewStored;window.showHistoryType=showHistoryType;window.shareByEmail=shareByEmail;window.render=render;
@@ -2088,7 +2187,7 @@ window.shareDoc=shareDoc;window.shareByEmail=shareByEmail;window.openWhatsApp=op
  cb(data);
  }catch(e){
  console.error('Product image:',e);
- toast('No se pudo cargar la imagen del producto.');
+ toast(e?.message==='IMAGE_FILE_TOO_LARGE'?'La imagen supera 15 MB. Elige una imagen más pequeña.':'No se pudo cargar la imagen del producto.');
  cb(null);
  }
  }
