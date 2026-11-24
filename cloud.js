@@ -83,6 +83,21 @@
  }
  async function signIn(email,password){ if(!client) init(); if(!client) throw new Error('Configura primero Supabase'); const r=await withTimeout(client.auth.signInWithPassword({email,password}),12000,'CLOUD_LOGIN_TIMEOUT'); if(r.data?.session) currentSession=r.data.session; if(r.data?.user?.email) localStorage.setItem(AUTH_EMAIL_KEY,r.data.user.email); return r; }
  async function signUp(email,password){ if(!client) init(); if(!client) throw new Error('Configura primero Supabase'); const r=await withTimeout(client.auth.signUp({email,password}),12000,'CLOUD_SIGNUP_TIMEOUT'); if(r.data?.session) currentSession=r.data.session; if(r.data?.user?.email) localStorage.setItem(AUTH_EMAIL_KEY,r.data.user.email); return r; }
+ async function sendPasswordReset(email,redirectTo){
+  if(!client)init();
+  if(!client)throw new Error('Configura primero Supabase');
+  const r=await withTimeout(client.auth.resetPasswordForEmail(email,{redirectTo}),12000,'CLOUD_RESET_EMAIL_TIMEOUT');
+  if(r.error)throw r.error;
+  return r;
+ }
+ async function updatePassword(password){
+  if(!client)init();
+  if(!client)throw new Error('Configura primero Supabase');
+  const r=await withTimeout(client.auth.updateUser({password}),12000,'CLOUD_PASSWORD_UPDATE_TIMEOUT');
+  if(r.error)throw r.error;
+  if(r.data?.user?.email)localStorage.setItem(AUTH_EMAIL_KEY,r.data.user.email);
+  return r;
+ }
  async function signOut(){ if(client) await withTimeout(client.auth.signOut({scope:'local'}),8000,'CLOUD_LOGOUT_TIMEOUT'); currentSession=null; sessionRequest=null; }
  function buildPayload(state){
  const meta={...(state._meta||{})};
@@ -191,7 +206,7 @@
  }
  init();
  },
- configured,session,signIn,signUp,signOut,saveState,loadState,getRole,
+ configured,session,signIn,signUp,sendPasswordReset,updatePassword,signOut,saveState,loadState,getRole,
  isConnected:async()=>!!(await session())
  };
 })();
