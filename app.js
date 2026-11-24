@@ -2029,7 +2029,9 @@ async function initializeCloudSession(){
  if(user){
  await syncCloudIntoState();
  await refreshCloudAccountRole();
- render();
+ // No reconstruir el formulario si el usuario ya empezó a capturar un documento.
+ // syncCloudIntoState conserva state.editing durante la inicialización de sesión.
+ if(!state.editing)render();
  clearInterval(window.SKCloudSyncTimer);
  window.SKCloudSyncTimer=setInterval(backgroundCloudSync,30000);
  }else{
