@@ -534,6 +534,40 @@ async function updateCloudStatus(){
  }
 }
 async function cloudConfigure(){const url=document.getElementById('cloud_url').value.trim(),key=document.getElementById('cloud_key').value.trim();if(!url||!key)return toast('Escribe la URL y la clave pública de Supabase');window.SKCloud.setConfig(url,key);await updateCloudStatus();toast('Configuración de nube guardada')}
+function showCloudPasswordRecovery(){
+ const m=document.getElementById('modal');
+ if(!m)return;
+ m.classList.remove('hidden');
+ m.innerHTML=`<div class="modal-card"><div class="actions no-print" style="justify-content:flex-end"><button class="btn outline" onclick="closeModal()">Cerrar</button></div><h2>Crear nueva contraseña</h2><p class="muted">Escribe una contraseña nueva para tu cuenta de SK House Construction. Debe tener al menos 6 caracteres.</p><div class="field"><label>Nueva contraseña</label><input id="cloud_new_pass" type="password" autocomplete="new-password" placeholder="Mínimo 6 caracteres"></div><div class="field"><label>Confirmar contraseña</label><input id="cloud_confirm_pass" type="password" autocomplete="new-password" placeholder="Repite la contraseña"></div><div class="actions"><button class="btn primary" onclick="saveRecoveredCloudPassword()">Guardar nueva contraseña</button></div></div>`;
+}
+async function cloudRecoverPassword(){
+ try{
+  const email=document.getElementById('cloud_email')?.value.trim()||'';
+  if(!email)return toast('Escribe primero el correo de acceso');
+  await window.SKCloud.sendPasswordReset(email,window.location.origin+window.location.pathname);
+  toast('Enviamos un enlace de recuperación. Revisa tu correo y también la carpeta de spam.');
+ }catch(e){
+  console.error('Recuperación de contraseña:',e);
+  toast(e.message||'No se pudo enviar el enlace de recuperación');
+ }
+}
+async function saveRecoveredCloudPassword(){
+ try{
+  const pass=document.getElementById('cloud_new_pass')?.value||'';
+  const confirm=document.getElementById('cloud_confirm_pass')?.value||'';
+  if(pass.length<6)return toast('La contraseña debe tener al menos 6 caracteres');
+  if(pass!==confirm)return toast('Las contraseñas no coinciden');
+  await window.SKCloud.updatePassword(pass);
+  closeModal();
+  const field=document.getElementById('cloud_pass');
+  if(field)field.value='';
+  toast('Contraseña actualizada. Ya puedes iniciar sesión con la nueva contraseña.');
+  await updateCloudStatus();
+ }catch(e){
+  console.error('Actualización de contraseña:',e);
+  toast(e.message||'No se pudo actualizar la contraseña');
+ }
+}
 async function cloudLogin(){try{const email=document.getElementById('cloud_email').value.trim(),pass=document.getElementById('cloud_pass').value;if(!email||!pass)return toast('Escribe correo y contraseña');const r=await window.SKCloud.signIn(email,pass);if(r.error)throw r.error;localStorage.setItem('skhc_last_login_email_v1',email);await syncCloudIntoState();await refreshCloudAccountRole();render();clearInterval(window.SKCloudSyncTimer);window.SKCloudSyncTimer=setInterval(backgroundCloudSync,30000);toast('Conectado a la nube')}catch(e){console.error(e);toast(e.message||'No se pudo iniciar sesión')}}
 async function cloudSignup(){try{const email=document.getElementById('cloud_email').value.trim(),pass=document.getElementById('cloud_pass').value;if(!email||pass.length<6)return toast('Usa un correo y una contraseña de al menos 6 caracteres');const r=await window.SKCloud.signUp(email,pass);if(r.error)throw r.error; if(r.data.session){await syncCloudIntoState();await refreshCloudAccountRole();clearInterval(window.SKCloudSyncTimer);window.SKCloudSyncTimer=setInterval(backgroundCloudSync,30000);toast('Cuenta creada y conectada')}else toast('Cuenta creada. Revisa tu correo para confirmar y después inicia sesión.')}catch(e){console.error(e);toast(e.message||'No se pudo crear la cuenta')}}
 async function cloudLogout(){
@@ -1121,7 +1155,7 @@ function settings(c){
  <input type="hidden" id="s_secondaryBankEnabled" value="${secondary?'1':'0'}">
  <div id="secondaryBankCard" class="bank-settings-card secondary-bank-card${secondary?'':' hidden-bank'}"><div class="bank-settings-head"><div class="bank-settings-label">CUENTA ADICIONAL</div><button type="button" class="btn danger bank-remove-btn" onclick="toggleSecondaryBankFields(false)">Quitar cuenta</button></div><div class="form-grid">${fields([['bank2','Banco'],['holder2','Titular'],['account2','Cuenta / CLABE'],['card2','Número de tarjeta']])}</div></div>
  <button id="addSecondaryBankBtn" type="button" class="btn outline bank-add-btn${secondary?' hidden-bank':''}" onclick="toggleSecondaryBankFields(true)">＋ Agregar otra cuenta bancaria</button></div>
- <div class="form-grid"><div class="field"><label>IVA (%)</label><input id="s_iva" inputmode="decimal" value="${state.settings.iva}"></div><div class="field full"><label>Notas predeterminadas</label><textarea id="s_notes" rows="3">${esc(state.settings.notes||'')}</textarea></div></div><div class="actions"><button class="btn primary" onclick="saveSettings()">Guardar configuración</button><button class="btn outline" onclick="backup()">Respaldar datos</button><label class="btn outline">Restaurar<input type="file" accept=".json" hidden onchange="restore(this.files[0])"></label></div></div><div class="section"><h2>Actualizar aplicación</h2><p class="muted">Cuando publiquemos una nueva versión, usa este botón para descargarla y reiniciar la aplicación. Tus datos y tu sesión no se borran.</p><div class="actions"><button class="btn primary" onclick="updateApplication()">Actualizar aplicación</button></div></div><div class="section"><h2>Cuenta y permisos</h2><p class="muted">La cuenta maestra de SK House Construction es <strong>${MASTER_ADMIN_EMAIL}</strong>.</p><div class="admin-role-card"><strong>${cloudAccountRole==='admin'?'👑 Administrador':'👤 Usuario'}</strong><span class="muted">${cloudAccountRole==='admin'?'Esta cuenta tiene el rol de administrador principal.':'Esta cuenta utiliza el rol de usuario.'}</span></div></div><div class="section"><h2> Base de datos en línea</h2><p class="muted">Conecta esta aplicación a Supabase para que clientes, productos, cotizaciones, notas y configuración estén disponibles desde cualquier dispositivo. Usa la misma cuenta de acceso en todos tus equipos.</p><div class="form-grid"><div class="field full"><label>Supabase Project URL</label><input id="cloud_url" value="${esc(cfg.url||'')}" placeholder="https://tu-proyecto.supabase.co"></div><div class="field full"><label>Supabase Publishable / Anon Key</label><input id="cloud_key" value="${esc(cfg.key||'')}" placeholder="sb_publishable_..."></div><div class="field"><label>Correo de acceso</label><input id="cloud_email" type="email" autocomplete="username" value="${esc(window.SKCloud?.getLastLoginEmail?.()||'')}" placeholder="tu-correo@ejemplo.com"></div><div class="field"><label>Contraseña</label><input id="cloud_pass" type="password" autocomplete="current-password" placeholder="Mínimo 6 caracteres"><small class="muted">La sesión se conserva automáticamente. Por seguridad, la contraseña no se guarda en la aplicación.</small></div></div><div class="actions"><button class="btn outline" onclick="cloudConfigure()">Guardar conexión</button><button class="btn primary" onclick="cloudLogin()">Iniciar sesión</button><button class="btn outline" onclick="cloudSignup()">Crear cuenta</button><button class="btn danger" onclick="cloudLogout()">Cerrar sesión</button></div><div id="cloudStatus" class="small" style="margin-top:10px">Comprobando conexión…</div></div><div class="section"><h2>Logotipo</h2><img src="logo.jpg" class="logo-preview"><p class="muted small">El logotipo oficial está integrado en la aplicación y en los documentos.</p></div>`
+ <div class="form-grid"><div class="field"><label>IVA (%)</label><input id="s_iva" inputmode="decimal" value="${state.settings.iva}"></div><div class="field full"><label>Notas predeterminadas</label><textarea id="s_notes" rows="3">${esc(state.settings.notes||'')}</textarea></div></div><div class="actions"><button class="btn primary" onclick="saveSettings()">Guardar configuración</button><button class="btn outline" onclick="backup()">Respaldar datos</button><label class="btn outline">Restaurar<input type="file" accept=".json" hidden onchange="restore(this.files[0])"></label></div></div><div class="section"><h2>Actualizar aplicación</h2><p class="muted">Cuando publiquemos una nueva versión, usa este botón para descargarla y reiniciar la aplicación. Tus datos y tu sesión no se borran.</p><div class="actions"><button class="btn primary" onclick="updateApplication()">Actualizar aplicación</button></div></div><div class="section"><h2>Cuenta y permisos</h2><p class="muted">La cuenta maestra de SK House Construction es <strong>${MASTER_ADMIN_EMAIL}</strong>.</p><div class="admin-role-card"><strong>${cloudAccountRole==='admin'?'👑 Administrador':'👤 Usuario'}</strong><span class="muted">${cloudAccountRole==='admin'?'Esta cuenta tiene el rol de administrador principal.':'Esta cuenta utiliza el rol de usuario.'}</span></div></div><div class="section"><h2> Base de datos en línea</h2><p class="muted">Conecta esta aplicación a Supabase para que clientes, productos, cotizaciones, notas y configuración estén disponibles desde cualquier dispositivo. Usa la misma cuenta de acceso en todos tus equipos.</p><div class="form-grid"><div class="field full"><label>Supabase Project URL</label><input id="cloud_url" value="${esc(cfg.url||'')}" placeholder="https://tu-proyecto.supabase.co"></div><div class="field full"><label>Supabase Publishable / Anon Key</label><input id="cloud_key" value="${esc(cfg.key||'')}" placeholder="sb_publishable_..."></div><div class="field"><label>Correo de acceso</label><input id="cloud_email" type="email" autocomplete="username" value="${esc(window.SKCloud?.getLastLoginEmail?.()||'')}" placeholder="tu-correo@ejemplo.com"></div><div class="field"><label>Contraseña</label><input id="cloud_pass" type="password" autocomplete="current-password" placeholder="Mínimo 6 caracteres"><small class="muted">La sesión se conserva automáticamente. Por seguridad, la contraseña no se guarda en la aplicación.</small></div></div><div class="actions"><button class="btn outline" onclick="cloudConfigure()">Guardar conexión</button><button class="btn primary" onclick="cloudLogin()">Iniciar sesión</button><button class="btn outline" onclick="cloudSignup()">Crear cuenta</button><button class="btn outline" onclick="cloudRecoverPassword()">Recuperar contraseña</button><button class="btn danger" onclick="cloudLogout()">Cerrar sesión</button></div><div id="cloudStatus" class="small" style="margin-top:10px">Comprobando conexión…</div></div><div class="section"><h2>Logotipo</h2><img src="logo.jpg" class="logo-preview"><p class="muted small">El logotipo oficial está integrado en la aplicación y en los documentos.</p></div>`
  setTimeout(()=>updateCloudStatus(),0);
 }
 function toggleSecondaryBankFields(show){
@@ -2143,6 +2177,10 @@ async function initializeCloudSession(){
 }
 window.addEventListener('sk-auth-state-change',e=>{
  const event=e.detail?.event;
+ if(event==='PASSWORD_RECOVERY'){
+  showCloudPasswordRecovery();
+  return;
+ }
  if(event==='SIGNED_OUT'){
  cloudSyncReady=false;
  cloudAccountRole='user';
@@ -2164,7 +2202,7 @@ window.archive=archive;window.templates=templates;window.selectTemplate=selectTe
 
 window.returnToDocument=returnToDocument;
 
-window.cloudConfigure=cloudConfigure;window.cloudLogin=cloudLogin;window.cloudSignup=cloudSignup;window.cloudLogout=cloudLogout;window.syncCloudIntoState=syncCloudIntoState;window.updateCloudStatus=updateCloudStatus;
+window.cloudConfigure=cloudConfigure;window.cloudLogin=cloudLogin;window.cloudSignup=cloudSignup;window.cloudRecoverPassword=cloudRecoverPassword;window.saveRecoveredCloudPassword=saveRecoveredCloudPassword;window.cloudLogout=cloudLogout;window.syncCloudIntoState=syncCloudIntoState;window.updateCloudStatus=updateCloudStatus;
 window.refreshCloudAccountRole=refreshCloudAccountRole;
 window.updateApplication=updateApplication;
 
