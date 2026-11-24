@@ -1988,8 +1988,8 @@ async function toolListPDF(d){
  let page=1,y=0,rowNo=0;
  const logo=getPdfLogoData();
  let logoFormat='PNG';
- if(/^data:image\\/jpe?g/i.test(String(logo)))logoFormat='JPEG';
- else if(/^data:image\\/webp/i.test(String(logo)))logoFormat='WEBP';
+ if(/^data:image\/jpe?g/i.test(String(logo)))logoFormat='JPEG';
+ else if(/^data:image\/webp/i.test(String(logo)))logoFormat='WEBP';
  function header(){
   pdf.setFillColor(...navy);pdf.rect(0,0,pageW,43,'F');
   pdf.setFillColor(255,255,255);pdf.roundedRect(13,8,31,27,2,2,'F');
@@ -2057,7 +2057,7 @@ async function toolListPDF(d){
   pdf.text(nameLines,margin+cols.num+3,y+6);
   if(hasImage){
    try{
-    const fmt=/^data:image\\/png/i.test(it.image)?'PNG':/^data:image\\/webp/i.test(it.image)?'WEBP':/^data:image\\/jpe?g/i.test(it.image)?'JPEG':'PNG';
+    const fmt=/^data:image\/png/i.test(it.image)?'PNG':/^data:image\/webp/i.test(it.image)?'WEBP':/^data:image\/jpe?g/i.test(it.image)?'JPEG':'PNG';
     const props=pdf.getImageProperties(it.image);
     const maxW=22,maxH=16,scale=Math.min(maxW/props.width,maxH/props.height,1);
     const iw=props.width*scale,ih=props.height*scale;
