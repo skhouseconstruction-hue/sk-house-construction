@@ -1979,35 +1979,128 @@ async function toolListPDF(d){
  if(!d)throw new Error('Lista no disponible');
  if(!(await ensurePdfLibraries()))throw new Error('PDF_LIBRARIES_UNAVAILABLE');
  const jsPDF=window.jspdf?.jsPDF||window.jsPDF;
- if(window.html2canvas){
- const paper=document.createElement('div');
- paper.style.cssText='position:fixed;left:-10000px;top:0;width:794px;background:#fff;padding:40px;font-family:Arial;color:#111;opacity:1;pointer-events:none;z-index:99999';
- const rows=(d.items||[]).map((it,i)=>`<tr><td>${i+1}</td><td>${esc(it.name||'')}${it.image?`<div style="margin-top:5px"><img src="${it.image}" style="width:${Math.round(120*Number(it.imageScale||1))}px;max-width:100%;height:auto"><br><span class="pdf-image-caption">${esc(cleanImageCaption(it.imageText||''))}</span></div>`:''}</td><td>${esc(it.qty||'')}</td><td>${esc(it.unit||'')}</td></tr>`).join('');
- paper.innerHTML=`<h1>SK House Construction</h1><h2>${esc(d.name||'Lista de herramientas')}</h2><p>${esc(d.date||'')}</p><table style="width:100%;border-collapse:collapse"><tr><th>#</th><th>Herramienta</th><th>Cantidad</th><th>Unidad</th></tr>${rows}</table><p>${esc(d.notes||'')}</p>`;
- document.body.appendChild(paper);
- try{
- await new Promise(r=>setTimeout(r,250));
- const imgs=[...paper.querySelectorAll('img')];
- await Promise.all(imgs.map(img=>new Promise(resolve=>{if(img.complete)return resolve();img.onload=img.onerror=resolve;})));
- const canvas=await window.html2canvas(paper,{scale:2,useCORS:true,allowTaint:true,backgroundColor:'#fff',logging:false});
- const pdf=new jsPDF('p','mm','a4'),img=canvas.toDataURL('image/jpeg',.95),w=194,h=canvas.height*w/canvas.width,pageH=281;
- let offset=0;while(offset<h){pdf.addImage(img,'JPEG',8,8-offset,w,h);offset+=pageH;if(offset<h)pdf.addPage();}
- return pdf.output('blob');
- }catch(e){console.warn('Captura de lista falló; usando PDF directo:',e)}finally{paper.remove();}
- }
- // Direct fallback: works even when html2canvas is unavailable.
  const pdf=new jsPDF('p','mm','a4');
- const margin=12,pageW=210,pageH=297;let y=margin;
- pdf.setFont('helvetica','bold');pdf.setFontSize(16);pdf.text('SK House Construction',margin,y);y+=8;
- pdf.setFont('helvetica','normal');pdf.setFontSize(11);pdf.text(d.name||'Lista de herramientas',margin,y);y+=6;pdf.text(d.date||'',margin,y);y+=8;
- pdf.setFont('helvetica','bold');pdf.text('#',margin,y);pdf.text('Herramienta',margin+10,y);pdf.text('Cantidad',margin+125,y);pdf.text('Unidad',margin+160,y);y+=6;
- pdf.setFont('helvetica','normal');
- for(const [i,it] of (d.items||[]).entries()){
- if(y>pageH-35){pdf.addPage();y=margin}
- const lines=pdf.splitTextToSize(`${it.name||''}`,108);pdf.text(String(i+1),margin,y);pdf.text(lines,margin+10,y);pdf.text(String(it.qty||''),margin+125,y);pdf.text(String(it.unit||''),margin+160,y);y+=5*lines.length+3;
- if(it.image&&String(it.image).startsWith('data:image/')){if(y>pageH-65){pdf.addPage();y=margin}try{const fmt=/^data:image\/png/i.test(String(it.image))?'PNG':/^data:image\/webp/i.test(String(it.image))?'WEBP':'JPEG';pdf.addImage(it.image,fmt,margin+10,y,45,35);y+=39}catch(e){}}
+ const pageW=210,pageH=297,margin=14,contentW=pageW-margin*2;
+ const navy=[15,48,86],gold=[190,151,75],ink=[38,48,60],muted=[105,115,125],pale=[242,246,250],line=[218,225,232];
+ const company=d.company||state.settings||{};
+ const dateText=String(d.date||'');
+ const items=(d.items||[]).filter(it=>it && (String(it.name||'').trim() || Number(it.qty||0)>0));
+ let page=1,y=0,rowNo=0;
+ const logo=getPdfLogoData();
+ let logoFormat='PNG';
+ if(/^data:image\\/jpe?g/i.test(String(logo)))logoFormat='JPEG';
+ else if(/^data:image\\/webp/i.test(String(logo)))logoFormat='WEBP';
+ function header(){
+  pdf.setFillColor(...navy);pdf.rect(0,0,pageW,43,'F');
+  pdf.setFillColor(255,255,255);pdf.roundedRect(13,8,31,27,2,2,'F');
+  try{if(logo)pdf.addImage(logo,logoFormat,15,9.5,27,24,'SKHC_LOGO','FAST');}catch(e){console.warn('No se pudo insertar el logotipo en la lista:',e);}
+  pdf.setTextColor(255,255,255);pdf.setFont('helvetica','bold');pdf.setFontSize(17);
+  pdf.text('SK House Construction',51,19);
+  pdf.setFont('helvetica','normal');pdf.setFontSize(8.5);pdf.setTextColor(226,234,243);
+  pdf.text('CONTROL Y ADMINISTRACION DE HERRAMIENTAS',51,26);
+  pdf.setTextColor(255,255,255);pdf.setFont('helvetica','bold');pdf.setFontSize(10);
+  pdf.text('LISTA DE HERRAMIENTAS',pageW-margin,36,{align:'right'});
+  y=51;
+  pdf.setFillColor(...pale);pdf.roundedRect(margin,y,contentW,17,2,2,'F');
+  pdf.setTextColor(...muted);pdf.setFont('helvetica','bold');pdf.setFontSize(7.5);
+  pdf.text('FECHA DE EMISION',margin+5,y+6);
+  pdf.text('HERRAMIENTAS REGISTRADAS',margin+contentW-5,y+6,{align:'right'});
+  pdf.setTextColor(...ink);pdf.setFont('helvetica','normal');pdf.setFontSize(10);
+  pdf.text(dateText||'No especificada',margin+5,y+12.5);
+  pdf.text(String(items.length),margin+contentW-5,y+12.5,{align:'right'});
+  y+=24;
+  if(company.phone||company.email||company.address||company.rfc){
+   pdf.setTextColor(...muted);pdf.setFont('helvetica','normal');pdf.setFontSize(7.5);
+   const details=[company.phone,company.email,company.address,company.rfc?('RFC: '+company.rfc):''].filter(Boolean).join('  |  ');
+   const lines=pdf.splitTextToSize(details,contentW);
+   pdf.text(lines,margin,y);y+=Math.max(4,lines.length*3.5)+3;
+  }
+  drawTableHeader();
  }
- if(d.notes){if(y>pageH-30){pdf.addPage();y=margin}y+=5;pdf.setFont('helvetica','bold');pdf.text('Observaciones:',margin,y);y+=5;pdf.setFont('helvetica','normal');pdf.text(pdf.splitTextToSize(String(d.notes),pageW-margin*2),margin,y);}
+ function drawTableHeader(){
+  const cols={num:10,name:contentW-10-29-28,qty:29,unit:28};
+  pdf.setFillColor(...navy);pdf.roundedRect(margin,y,contentW,9,1.5,1.5,'F');
+  pdf.setTextColor(255,255,255);pdf.setFont('helvetica','bold');pdf.setFontSize(8);
+  pdf.text('#',margin+4,y+5.8);
+  pdf.text('HERRAMIENTA',margin+cols.num+3,y+5.8);
+  pdf.text('CANTIDAD',margin+cols.num+cols.name+cols.qty/2,y+5.8,{align:'center'});
+  pdf.text('UNIDAD',margin+contentW-3,y+5.8,{align:'right'});
+  y+=9;
+ }
+ function newPage(){
+  pdf.addPage();page++;header();
+ }
+ function drawFooter(){
+  const pages=pdf.getNumberOfPages();
+  for(let p=1;p<=pages;p++){
+   pdf.setPage(p);
+   pdf.setDrawColor(...line);pdf.setLineWidth(.25);pdf.line(margin,pageH-14,pageW-margin,pageH-14);
+   pdf.setFont('helvetica','normal');pdf.setFontSize(7);pdf.setTextColor(...muted);
+   pdf.text('SK House Construction  |  Documento de control interno',margin,pageH-9);
+   pdf.text('Pagina '+p+' de '+pages,pageW-margin,pageH-9,{align:'right'});
+  }
+ }
+ header();
+ const cols={num:10,name:contentW-10-29-28,qty:29,unit:28};
+ for(const [i,it] of items.entries()){
+  const nameLines=pdf.splitTextToSize(String(it.name||'Herramienta sin nombre'),cols.name-7);
+  const hasImage=String(it.image||'').startsWith('data:image/');
+  const caption=cleanImageCaption(it.imageText||'');
+  const imageBlock=hasImage?19+(caption?4:0):0;
+  const rowH=Math.max(12,5+nameLines.length*4+imageBlock);
+  if(y+rowH>pageH-25){newPage();}
+  if(i%2===1){pdf.setFillColor(...pale);pdf.rect(margin,y,contentW,rowH,'F');}
+  pdf.setDrawColor(...line);pdf.setLineWidth(.2);pdf.line(margin,y+rowH,margin+contentW,y+rowH);
+  pdf.setTextColor(...muted);pdf.setFont('helvetica','normal');pdf.setFontSize(8);
+  pdf.text(String(i+1),margin+4,y+6);
+  pdf.setTextColor(...ink);pdf.setFont('helvetica','normal');pdf.setFontSize(8.5);
+  pdf.text(nameLines,margin+cols.num+3,y+6);
+  if(hasImage){
+   try{
+    const fmt=/^data:image\\/png/i.test(it.image)?'PNG':/^data:image\\/webp/i.test(it.image)?'WEBP':/^data:image\\/jpe?g/i.test(it.image)?'JPEG':'PNG';
+    const props=pdf.getImageProperties(it.image);
+    const maxW=22,maxH=16,scale=Math.min(maxW/props.width,maxH/props.height,1);
+    const iw=props.width*scale,ih=props.height*scale;
+    pdf.addImage(it.image,fmt,margin+cols.num+3,y+6+nameLines.length*4,iw,ih,'TOOL_'+i,'FAST');
+    if(caption){pdf.setFontSize(6.5);pdf.setTextColor(...muted);pdf.text(pdf.splitTextToSize(caption,cols.name-8).slice(0,1),margin+cols.num+28,y+10+nameLines.length*4);}
+   }catch(e){console.warn('Imagen de herramienta omitida en PDF:',e);}
+  }
+  pdf.setTextColor(...ink);pdf.setFont('helvetica','bold');pdf.setFontSize(9);
+  pdf.text(String(it.qty??''),margin+cols.num+cols.name+cols.qty/2,y+6,{align:'center'});
+  pdf.setFont('helvetica','normal');pdf.setFontSize(8.5);
+  pdf.text(String(it.unit||''),margin+contentW-3,y+6,{align:'right'});
+  y+=rowH;rowNo++;
+ }
+ if(!items.length){
+  pdf.setTextColor(...muted);pdf.setFont('helvetica','italic');pdf.setFontSize(9);
+  pdf.text('No hay herramientas registradas.',margin+3,y+8);y+=14;
+ }
+ const noteText=String(d.notes||'').trim();
+ if(noteText){
+  const noteLines=pdf.splitTextToSize(noteText,contentW-10);
+  const noteH=12+noteLines.length*4;
+  if(y+noteH+45>pageH-20)newPage();
+  y+=7;
+  pdf.setFillColor(...pale);pdf.roundedRect(margin,y,contentW,noteH,2,2,'F');
+  pdf.setTextColor(...navy);pdf.setFont('helvetica','bold');pdf.setFontSize(8);
+  pdf.text('OBSERVACIONES',margin+5,y+6);
+  pdf.setTextColor(...ink);pdf.setFont('helvetica','normal');pdf.setFontSize(8.5);
+  pdf.text(noteLines,margin+5,y+12);
+  y+=noteH+7;
+ }
+ if(y+39>pageH-20)newPage();
+ y+=9;
+ pdf.setTextColor(...navy);pdf.setFont('helvetica','bold');pdf.setFontSize(8);
+ const sigGap=18,sigW=(contentW-sigGap)/2;
+ const left=margin,right=margin+sigW+sigGap;
+ pdf.setDrawColor(...gold);pdf.setLineWidth(.7);
+ pdf.line(left,y+12,left+sigW,y+12);pdf.line(right,y+12,right+sigW,y+12);
+ pdf.text('ENTREGA',left,y,{maxWidth:sigW});
+ pdf.text('RECIBE',right,y,{maxWidth:sigW});
+ pdf.setTextColor(...muted);pdf.setFont('helvetica','normal');pdf.setFontSize(7);
+ pdf.text('Nombre y firma',left,y+17);pdf.text('Nombre y firma',right,y+17);
+ pdf.text('Fecha: __________________',left,y+23);pdf.text('Fecha: __________________',right,y+23);
+ drawFooter();
  return pdf.output('blob');
 }
 function migrateIds(){normalizeStateData();saveLocal();}
