@@ -437,7 +437,8 @@ async function syncCloudIntoState(){
  console.error('Cloud sync:',e);
  const msg=String(e?.message||e?.details||e?.hint||e?.code||'');
  toast(msg?`No se pudo sincronizar con la nube: ${msg}`:'No se pudo sincronizar con la nube. Tus datos locales permanecen intactos.');
- updateCloudStatus();
+ await updateCloudStatus();
+ throw e;
  }
  })();
  try{return await cloudSyncInFlight;}finally{cloudSyncInFlight=null;}
