@@ -1,0 +1,9 @@
+name = "sk-house-construction-api"
+main = "src/index.js"
+compatibility_date = "2026-11-27"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "sk-house-construction-db"
+database_id = "e251e814-7258-42c8-a3af-f3e443b6da55"
+migrations_dir = "migrations"
